@@ -17,20 +17,223 @@ limitations under the License.
 
 package com.intel.cosbench.driver.random;
 
+import java.util.LinkedList;
 import java.util.Random;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
 
 import com.intel.cosbench.config.ConfigException;
 
-class RangeIntGenerator implements IntGenerator {
+public class RangeIntGenerator implements IntGenerator {
 
     private int lower;
     private int upper;
     
     private AtomicInteger cursor;
 
+    
+    static class NonSharedGeneratorThread extends Thread 
+    {
+    	private int all;
+    	private int idx;
+    	private RangeIntGenerator generator;
+    	private Random rnd;
+    	
+    	public NonSharedGeneratorThread(String pattern, int idx, int all) 
+    	{
+    		this.all = all;
+    		this.idx = idx;
+    		this.setName("Thread[" + idx + "]");
+    		this.generator = RangeIntGenerator.parse(pattern);
+    		this.rnd = new Random(123);
+            
+    	}
+    	
+    	public void start()
+    	{
+        	int i=0;            	
+        	    
+        	try
+        	{
+	            while(i++< 11) {
+	            	System.out.println(this.getName() + ": " +generator.next(rnd, idx, all));
+	            	sleep(1);
+	            }
+        	}catch(InterruptedException ie)
+        	{
+        		ie.printStackTrace();
+        	}
+    	}
+   }
+
+    static class SharedGeneratorThread extends Thread 
+    {
+    	private int all;
+    	private int idx;
+    	private RangeIntGenerator generator;
+    	private Random rnd;
+    	
+    	public SharedGeneratorThread(RangeIntGenerator generator, int idx, int all) 
+    	{
+    		this.generator = generator;
+    		this.all = all;
+    		this.idx = idx;
+    		this.setName("Thread[" + idx + "]");
+    		this.rnd = new Random(123);
+            
+    	}
+    	
+    	public void start()
+    	{
+        	int i=0;            	
+        	    
+        	try
+        	{
+	            while(i++< 11) {
+	            	System.out.println(this.getName() + ": " +generator.next(rnd, idx, all));
+	            	sleep(1);
+	            }
+        	}catch(InterruptedException ie)
+        	{
+        		ie.printStackTrace();
+        	}
+    	}
+   }
+
+    public static void testNonSharedGenerator()
+    {
+		// below is to test non-shared generator case.
+		System.out.println("=======Non-Shared Generator Case========");
+
+    	final String pattern = "r(50,100)";
+    	
+		final int all = 5;
+		int i = 0;
+
+		Vector<NonSharedGeneratorThread> threads = new Vector<NonSharedGeneratorThread>();
+
+		for(i=0; i<all; i++)
+		{
+			NonSharedGeneratorThread thread = new NonSharedGeneratorThread(pattern, i+1, all);
+			threads.add(thread);
+			thread.start();
+		}
+
+		try {
+			for(i=0; i<all; i++)
+			{
+				threads.elementAt(i).join();
+			}
+		}catch(InterruptedException ie) {
+			ie.printStackTrace();
+		}
+   	
+    }
+
+    public static void testSharedGenerator()
+    {
+		// below is to test shared generator case.
+		System.out.println("=======Shared Generator Case========");
+
+    	final String pattern = "r(50,100)";
+    	final RangeIntGenerator generator = RangeIntGenerator.parse(pattern);
+    	
+		final int all = 5;
+		int i = 0;
+
+		Vector<SharedGeneratorThread> threads = new Vector<SharedGeneratorThread>();
+
+		for(i=0; i<all; i++)
+		{
+			SharedGeneratorThread thread = new SharedGeneratorThread(generator, i+1, all);
+			threads.add(thread);
+			thread.start();
+		}
+
+		try {
+			for(i=0; i<all; i++)
+			{
+				threads.elementAt(i).join();
+			}
+		}catch(InterruptedException ie) {
+			ie.printStackTrace();
+		}
+   	
+    }
+
+    static class TestThread extends Thread {
+        private int all;
+        private int idx;
+        private RangeIntGenerator generator;
+        private Random rnd;
+
+        public TestThread(RangeIntGenerator gen, int idx, int all) {
+            this.all = all;
+            this.idx = idx;
+            this.setName("Thread[" + idx + "]");
+            this.generator = gen;
+            this.rnd = new Random(123);
+
+        }
+
+        public void run() {
+            int i = 0;
+            LinkedList<Integer> results = new LinkedList<Integer>();
+            try {
+                while (i++ < 11) {
+                    int answer = generator.next(rnd, idx, all);
+                    if (!results.contains(answer)) {
+                        System.out.println(this.getName() + ": " + answer);    
+                    } else {
+                        System.out.println(this.getName() + ": " + answer + " I did get this before!");
+                    }
+                    results.add(answer);
+                    sleep(1);
+                }
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
+        }
+    }
+	
+    public static void testDuplicate()
+    {
+		// below is to test if duplicated number is generated.
+		System.out.println("=======Duplicate number Case========");
+		
+    	final String pattern = "r(50,100)";
+        final int all = 5;
+        int i = 0;
+        Vector<TestThread> threads = new Vector<TestThread>();
+        RangeIntGenerator gen = RangeIntGenerator.parse(pattern);
+
+        for (i = 0; i < all; i++) {
+            TestThread thread = new TestThread(gen, i + 1, all);
+            threads.add(thread);
+            thread.start();
+        }
+
+        try {
+            for (i = 0; i < all; i++) {
+                threads.elementAt(i).join();
+            }
+        } catch (InterruptedException ie) {
+            ie.printStackTrace();
+        }
+    }
+    
+    public static void main(String[] args)
+    {
+
+    	testNonSharedGenerator();
+		testSharedGenerator();
+		testDuplicate();
+		
+    }
+    
+    
     public RangeIntGenerator(int lower, int upper) {
         if (lower <= 0 || upper <= 0 || lower > upper)
             throw new IllegalArgumentException();
@@ -52,10 +255,10 @@ class RangeIntGenerator implements IntGenerator {
     	int extra = range % all;
     	int offset = base * (idx - 1) + (extra >= idx - 1 ? idx - 1 : extra);
     	int segment = base + (extra >= idx ? 1 : 0);
-    	int limit = segment + offset + lower;
-    	cursor.set(cursor.get() <= 0 ? limit - segment : cursor.incrementAndGet());
     	
-    	return cursor.get() < limit ? cursor.get() : lower;
+    	cursor.set(cursor.get()%(segment));
+
+    	return lower + offset + cursor.getAndIncrement();
     }
     
     public static RangeIntGenerator parse(String pattern) {
