@@ -18,15 +18,25 @@ limitations under the License.
 package com.intel.cosbench.client.swift;
 
 import static com.intel.cosbench.client.swift.SwiftConstants.X_AUTH_TOKEN;
-import static org.apache.http.HttpStatus.*;
+import static org.apache.http.HttpStatus.SC_ACCEPTED;
+import static org.apache.http.HttpStatus.SC_CONFLICT;
+import static org.apache.http.HttpStatus.SC_CREATED;
+import static org.apache.http.HttpStatus.SC_NOT_FOUND;
+import static org.apache.http.HttpStatus.SC_NO_CONTENT;
+import static org.apache.http.HttpStatus.SC_OK;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.http.*;
+import org.apache.http.Header;
+import org.apache.http.HttpException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.*;
-import org.apache.http.entity.*;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.InputStreamEntity;
 
 import com.intel.cosbench.client.http.HttpClientUtil;
 
