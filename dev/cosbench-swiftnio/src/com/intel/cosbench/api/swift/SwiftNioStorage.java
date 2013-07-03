@@ -208,7 +208,7 @@ class SwiftNioStorage extends NoneStorage {
 //            BasicHttpRequest request = new BasicHttpRequest("GET", path);
             
 //            CountDownLatch latch = new CountDownLatch(1);
-            nioclient.issueRequest(target, method);
+            nioclient.download(target, method);
             
 //            latch.await();
             

@@ -1,15 +1,8 @@
 package com.intel.cosbench.api.nioengine;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URI;
-import java.nio.charset.Charset;
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
 
 import org.apache.http.HttpHost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.FileEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 
@@ -65,7 +58,7 @@ public class NIOEngineTester {
 	
 	            System.out.println("[" + (i+1) + "]" + " Start Timestamp=" + System.currentTimeMillis());
             
-	        	client.issueRequest(target, request);
+	        	client.download(target, request);
 	            
 	            System.out.println("[" + (i+1) + "]" + " End Timestamp=" + System.currentTimeMillis());
             }
@@ -126,9 +119,9 @@ public class NIOEngineTester {
     	NIOEngineTester tester = new NIOEngineTester();
     	tester.init();
     	
-    	tester.testGET();
+//    	tester.testGET();
     	
-//    	tester.testPUT();
+    	tester.testPUT();
     	
     	tester.fini();
     	

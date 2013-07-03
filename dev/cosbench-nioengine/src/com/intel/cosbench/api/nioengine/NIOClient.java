@@ -13,7 +13,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.HttpAsyncRequester;
 import org.apache.http.protocol.HttpCoreContext;
@@ -69,7 +68,7 @@ public class NIOClient {
 		return request;
 	}
 	
-	public void issueRequest(HttpHost target, HttpRequest request) throws Exception {
+	public void download(HttpHost target, HttpRequest request) throws Exception {
         // Create HTTP requester
 //    	HttpHost proxy = new HttpHost("proxy-prc.intel.com", 911, "http");
         
@@ -105,11 +104,7 @@ public class NIOClient {
     }
 
 	public void upload(HttpHost target, HttpEntityEnclosingRequest request) throws Exception {
-        // Create HTTP requester
-//    	HttpHost proxy = new HttpHost("proxy-prc.intel.com", 911, "http");
-        
-        // Execute HTTP GETs to the following hosts and    	
-//    	COSBFutureCallback futureCallback =  new COSBFutureCallback(target, latch);
+//    	COSBFutureCallback futureCallback =  new COSBFutureCallback(latch, target);
 		futureCallback.setTarget(target);
 		
     	long start = System.currentTimeMillis();
@@ -129,11 +124,12 @@ public class NIOClient {
  		{
  			FileEntity entity = new FileEntity(file);
  			request.setEntity(entity);
- 			producer = new BaseZCProducer(URI.create(up_path), file, contentType); 
+ 			producer = new ZCProducer<File>(new ProducerFileSource(file), URI.create(up_path), file, contentType);
+ 			// 			producer = new BaseZCProducer(URI.create(up_path), file, contentType); 
  		}
     	
         Future<HttpResponse> future = requester.execute(
-                producer,
+        		new BaseZCAsyncRequestProducer(target, request, producer),
                 consumer,
 //                new BasicAsyncResponseConsumer() ,
                 connPool,

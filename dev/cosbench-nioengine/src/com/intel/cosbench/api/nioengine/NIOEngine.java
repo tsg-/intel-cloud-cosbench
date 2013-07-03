@@ -21,23 +21,17 @@ import static com.intel.cosbench.api.nioengine.NIOEngineConstants.*;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
 
-import org.apache.http.HttpHost;
 import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
-import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.config.ConnectionConfig;
 
 import com.intel.cosbench.config.Config;
-import com.intel.cosbench.log.LogFactory;
-import com.intel.cosbench.log.LogManager;
 import com.intel.cosbench.log.Logger;
 import com.intel.cosbench.api.context.*;
 import com.intel.cosbench.api.ioengine.*;

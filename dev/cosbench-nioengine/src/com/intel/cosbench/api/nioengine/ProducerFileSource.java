@@ -22,7 +22,7 @@ import org.apache.http.util.Args;
  *
  */
 @NotThreadSafe
-public class ProducerFileSource implements HttpAsyncContentProducer {
+public class ProducerFileSource extends ProducerSource<File> {
 
 	private final File file;
 	private FileChannel fileChannel;
@@ -31,12 +31,14 @@ public class ProducerFileSource implements HttpAsyncContentProducer {
 
 	public ProducerFileSource(final File file, final ContentType contentType,
 			final boolean useFileChannels) {
+		super(file);
 		Args.notNull(file, "File");
 		this.file = file;
 		this.useFileChannels = useFileChannels;
 	}
 
 	public ProducerFileSource(final File file) {
+		super(file);
 		Args.notNull(file, "File");
 		this.file = file;
 	}
