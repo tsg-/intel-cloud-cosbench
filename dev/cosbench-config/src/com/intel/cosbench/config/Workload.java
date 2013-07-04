@@ -108,6 +108,9 @@ public class Workload {
         setName(getName());
         setWorkflow(getWorkflow());
         for (Stage stage : workflow)
+            if (stage.getIoengine() == null)
+                stage.setIoengine(ioengine);
+        for (Stage stage : workflow)
             if (stage.getAuth() == null)
                 stage.setAuth(auth);
         for (Stage stage : workflow)

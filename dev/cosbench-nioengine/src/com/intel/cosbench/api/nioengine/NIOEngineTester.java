@@ -37,7 +37,7 @@ public class NIOEngineTester {
     	
     	try
     	{
-        	NIOClient client = new NIOClient(ioengine.getConnPool());
+        	NIOClient client = ioengine.newClient(); // new NIOClient(ioengine.getConnPool(), nioengine);
         	
 
     		HttpHost target = new HttpHost("127.0.0.1", 8080, "http");
@@ -81,7 +81,7 @@ public class NIOEngineTester {
     	
     	try
     	{
-        	NIOClient client = new NIOClient(ioengine.getConnPool());
+        	NIOClient client = ioengine.newClient(); //new NIOClient(ioengine.getConnPool());
 
     		HttpHost target = new HttpHost("127.0.0.1", 8080, "http");
             String sub = "128KB";
@@ -119,9 +119,9 @@ public class NIOEngineTester {
     	NIOEngineTester tester = new NIOEngineTester();
     	tester.init();
     	
-//    	tester.testGET();
+    	tester.testGET();
     	
-    	tester.testPUT();
+//    	tester.testPUT();
     	
     	tester.fini();
     	

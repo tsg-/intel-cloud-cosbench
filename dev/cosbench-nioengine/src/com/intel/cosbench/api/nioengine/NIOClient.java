@@ -39,10 +39,10 @@ public class NIOClient {
 	
 	private String doc_root = "c:/temp/download/";
 	
-	public NIOClient(BasicNIOConnPool connPool)
+	public NIOClient(BasicNIOConnPool connPool, CountDownLatch latch)
 	{
 		this.connPool = connPool;
-		latch = new CountDownLatch(connPool.getDefaultMaxPerRoute());
+		this.latch = latch; // new CountDownLatch(connPool.getDefaultMaxPerRoute());
     	futureCallback =  new COSBFutureCallback(latch);
 		
         HttpProcessor httpproc = HttpProcessorBuilder.create()
@@ -80,6 +80,8 @@ public class NIOClient {
     	String uri = request.getRequestLine().getUri();
     	String down_path = doc_root + "/" + uri;
     	
+//    	COSBFutureCallback futureCallback =  new COSBFutureCallback(latch, target);
+    	
     	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
 //    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerNullSink(ByteBuffer.allocate(8192)));
    		
@@ -105,7 +107,7 @@ public class NIOClient {
 
 	public void upload(HttpHost target, HttpEntityEnclosingRequest request) throws Exception {
 //    	COSBFutureCallback futureCallback =  new COSBFutureCallback(latch, target);
-		futureCallback.setTarget(target);
+//		futureCallback.setTarget(target);
 		
     	long start = System.currentTimeMillis();
     	

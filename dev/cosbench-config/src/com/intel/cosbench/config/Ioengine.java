@@ -27,7 +27,8 @@ import org.apache.commons.lang.StringUtils;
  *
  */
 public class Ioengine {
-
+	public static final 	Ioengine DEFAULT_IOENGINE = new Ioengine("none");
+	
     private String type;
     private String config;
 

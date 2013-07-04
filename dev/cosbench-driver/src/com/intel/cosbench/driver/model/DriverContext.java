@@ -17,6 +17,9 @@ limitations under the License.
 
 package com.intel.cosbench.driver.model;
 
+import com.intel.cosbench.log.LogFactory;
+import com.intel.cosbench.log.LogManager;
+import com.intel.cosbench.log.Logger;
 import com.intel.cosbench.model.DriverInfo;
 
 /**
@@ -29,8 +32,39 @@ public class DriverContext implements DriverInfo {
 
     private String name;
     private String url;
+    
+    // add IO Engine parameters
+    private String ioengine;
+    private int channels;
+    private int concurrency;
 
-    public DriverContext() {
+    private boolean status;
+    
+    public String getIoengine() {
+		return ioengine;
+	}
+
+	public void setIoengine(String ioengine) {
+		this.ioengine = ioengine;
+	}
+
+	public int getChannels() {
+		return channels;
+	}
+
+	public void setChannels(int channels) {
+		this.channels = channels;
+	}
+
+	public int getConcurrency() {
+		return concurrency;
+	}
+
+	public void setConcurrency(int concurrency) {
+		this.concurrency = concurrency;
+	}
+
+	public DriverContext() {
         /* empty */
     }
 
@@ -50,4 +84,12 @@ public class DriverContext implements DriverInfo {
         this.url = url;
     }
 
+    public boolean getStatus() {
+    	return status;
+    }
+    
+    public void setStatus(boolean status) {
+    	this.status = status;
+    }
+    
 }

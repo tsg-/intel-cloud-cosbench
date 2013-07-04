@@ -192,7 +192,6 @@ class SwiftNioStorage extends NoneStorage {
             
 //            latch.await();
             
-            
             // check response.
             // in FutureCallback.
             

@@ -53,4 +53,8 @@ public class DriverContext implements DriverInfo, MapRegistry.Item {
         this.url = url;
     }
 
+    @Override
+    public boolean getStatus() {
+    	return true;
+    }
 }

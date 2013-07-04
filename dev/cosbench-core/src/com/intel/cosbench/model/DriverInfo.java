@@ -22,5 +22,7 @@ public interface DriverInfo {
     public String getName();
 
     public String getUrl();
+    
+    public boolean getStatus();
 
 }

@@ -36,7 +36,8 @@ public class PingHandler extends AbstractCommandHandler {
         PingResponse response = new PingResponse();
         DriverInfo info = driver.getDriverInfo();
         response.setName(info.getName());
-        response.setAddress(info.getUrl());
+        response.setAddress(info.getUrl());        
+        response.setStatus(driver.getDriverInfo().getStatus());
         return response;
     }
 

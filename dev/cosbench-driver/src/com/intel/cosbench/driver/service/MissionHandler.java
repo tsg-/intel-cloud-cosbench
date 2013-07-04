@@ -102,7 +102,7 @@ class MissionHandler {
         createOperators();
         initOpPicker();
         parseConfigs();
-        createIOEngine();
+        initIOEngine();
         createWorkers();
         createExecutor();
     }
@@ -164,12 +164,12 @@ class MissionHandler {
         storageConfig = KVConfigParser.parse(m.getStorage().getConfig());
     }
 
-    private void createIOEngine() {
+    private void initIOEngine() {
         LogManager manager = missionContext.getLogManager();
         Mission mission = missionContext.getMission();
     	ioengine = createIOEngineApi(mission.getIoengine(), manager);
     	
-    	ioengine.init(ioengineConfig, manager.getLogger());
+    	LOGGER.info("I/O Engine is initialized!");
     }
     
     private void createWorkers() {

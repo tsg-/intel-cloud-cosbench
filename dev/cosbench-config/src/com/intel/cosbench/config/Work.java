@@ -43,6 +43,7 @@ public class Work implements Iterable<Operation> {
     private long totalBytes = 0;
     private String driver;
     private String config;
+    private Ioengine ioengine;
     private Auth auth;
     private Storage storage;
     private List<Operation> operations;
@@ -184,6 +185,16 @@ public class Work implements Iterable<Operation> {
         /* configuration might be empty */
         this.config = config;
     }
+    
+    public Ioengine getIoengine() {
+        return ioengine;
+    }
+
+    public void setIoengine(Ioengine ioengine) {
+        if (ioengine == null)
+            throw new ConfigException("a work must have its ioengine");
+        this.ioengine = ioengine;
+    }
 
     public Auth getAuth() {
         return auth;
@@ -310,6 +321,8 @@ public class Work implements Iterable<Operation> {
         if (runtime == 0 && totalOps == 0 && totalBytes == 0)
             throw new ConfigException(
                     "no work limits detectd, either runtime, total ops or total bytes");
+        setIoengine(getIoengine());
+        ioengine.validate();
         setAuth(getAuth());
         auth.validate();
         setStorage(getStorage());

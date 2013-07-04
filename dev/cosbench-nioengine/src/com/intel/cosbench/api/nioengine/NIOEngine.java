@@ -21,8 +21,14 @@ import static com.intel.cosbench.api.nioengine.NIOEngineConstants.*;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.util.concurrent.CountDownLatch;
 
+import org.apache.http.config.ConnectionConfig;
+import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
+import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
+import org.apache.http.impl.nio.reactor.IOReactorConfig;
+import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 
@@ -380,12 +386,40 @@ public class NIOEngine extends NoneIOEngine {
         concurrency = 16;	// how many outstanding io can support.
 //      channels = config.getInt(IOENGINE_CHANNELS_KEY, IOENGINE_CHANNELS_DEFAULT);
 //      concurrency = config.getInt(IOENGINE_CONCURRENCY_KEY, IOENGINE_CONCURRENCY_DEFAULT);
-
+//
 //        parms.put(IOENGINE_CHANNELS_KEY, channels);
 //        parms.put(IOENGINE_CONCURRENCY_KEY, concurrency);
+                
+        logger.info("using IOEngine config: {}", parms);
         
+        try
+        {
+//	    	// Create HTTP protocol processing chain
+
+	        // Create client-side HTTP protocol handler
+	        HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
+	        
+	        // Create client-side I/O event dispatch
+	        ioEventDispatch = new DefaultHttpClientIODispatch(protocolHandler, ConnectionConfig.DEFAULT);
+	        // Create client-side I/O reactor
+	        ioReactor = new DefaultConnectingIOReactor(IOReactorConfig.custom()
+	        		.setIoThreadCount(channels)
+	        		.build(), 
+	        		null);
+	        // Create HTTP connection pool
+	        connPool = new BasicNIOConnPool(ioReactor, ConnectionConfig.DEFAULT);
+	        // Limit total number of connections to just two
+	        connPool.setDefaultMaxPerRoute(concurrency);
+	        connPool.setMaxTotal(concurrency);
+        }catch(Exception e) {
+            logger.debug("NIOEngine is failed to initialize");
+        	e.printStackTrace();
+        	
+        	return false;
+        }
+
+        logger.debug("NIOEngine has been initialized");
         
-        logger.debug("using IOEngine config: {}", parms);
         
         return true;
     }
@@ -448,7 +482,8 @@ public class NIOEngine extends NoneIOEngine {
     }
     
     public NIOClient newClient() {
-    	NIOClient ioclient = new NIOClient(getConnPool());
+    	
+    	NIOClient ioclient = new NIOClient(getConnPool(), new CountDownLatch(concurrency));
     	
     	return ioclient;
     }
