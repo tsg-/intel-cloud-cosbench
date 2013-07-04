@@ -375,75 +375,22 @@ public class NIOEngine extends NoneIOEngine {
     public NIOEngine() {
     }
 
-/*    
-    public void issueRequest(HttpHost target, BasicHttpRequest request, final CountDownLatch latch) throws Exception {
-        // Create HTTP requester
-//    	HttpHost proxy = new HttpHost("proxy-prc.intel.com", 911, "http");
-        
-        // Execute HTTP GETs to the following hosts and    	
-        HttpProcessor httpproc = HttpProcessorBuilder.create()
-                // Use standard client-side protocol interceptors
-                .add(new RequestContent())
-                .add(new RequestTargetHost())
-                .add(new RequestConnControl())
-                .add(new RequestUserAgent("Mozilla/5.0"))
-                .add(new RequestExpectContinue()).build();
-        HttpAsyncRequester requester = new HttpAsyncRequester(httpproc);
-        String out_path = "c:\\temp\\123.html";
-        
-//        final CountDownLatch latch = new CountDownLatch(1);
-    	HttpClientUtil.makeRequest(requester, request, pool, target, out_path, new COSBFutureCallback(target, latch));
-//    	latch.await();
-    }
-*/
-    
-//    public void issueRequest(HttpHost target, BasicHttpRequest request, final CountDownLatch latch) throws Exception {
-//
-//    	NIOClient client = new NIOClient(connPool);
-//    	client.issueRequest(target, request, latch);
-//
-//    }
     
     @Override
     public boolean init(Config config, Logger logger) {
         super.init(config, logger);
+        
+        //@TODO
+        channels = 8;	// how many io channel reactors will be used to serve i/o.
+        concurrency = 16;	// how many outstanding io can support.
 //      channels = config.getInt(IOENGINE_CHANNELS_KEY, IOENGINE_CHANNELS_DEFAULT);
 //      concurrency = config.getInt(IOENGINE_CONCURRENCY_KEY, IOENGINE_CONCURRENCY_DEFAULT);
 
-        parms.put(IOENGINE_CHANNELS_KEY, channels);
-        parms.put(IOENGINE_CONCURRENCY_KEY, concurrency);
+//        parms.put(IOENGINE_CHANNELS_KEY, channels);
+//        parms.put(IOENGINE_CONCURRENCY_KEY, concurrency);
         
         
         logger.debug("using IOEngine config: {}", parms);
-        
-        try
-        {
-//	    	// Create HTTP protocol processing chain
-
-	        // Create client-side HTTP protocol handler
-	        HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
-
-	        
-	        // Create client-side I/O event dispatch
-	        ioEventDispatch = new DefaultHttpClientIODispatch(protocolHandler, ConnectionConfig.DEFAULT);
-	        // Create client-side I/O reactor
-	        ioReactor = new DefaultConnectingIOReactor(IOReactorConfig.custom()
-	        		.setIoThreadCount(channels)
-	        		.build(), 
-	        		null);
-	        // Create HTTP connection pool
-	        connPool = new BasicNIOConnPool(ioReactor, ConnectionConfig.DEFAULT);
-	        // Limit total number of connections to just two
-	        connPool.setDefaultMaxPerRoute(channels);
-	        connPool.setMaxTotal(channels);
-        }catch(Exception e) {
-            logger.debug("NIOEngine is failed to initialize");
-        	e.printStackTrace();
-        	
-        	return false;
-        }
-
-        logger.debug("NIOEngine has been initialized");
         
         return true;
     }
@@ -503,6 +450,12 @@ public class NIOEngine extends NoneIOEngine {
     private IOEngineContext createContext() {
         IOEngineContext context = new IOEngineContext();
         return context;
+    }
+    
+    public NIOClient newClient() {
+    	NIOClient ioclient = new NIOClient(getConnPool());
+    	
+    	return ioclient;
     }
 
 }

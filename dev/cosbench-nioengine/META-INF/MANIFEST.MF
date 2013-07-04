@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: COSBench Swauth Client Bundle
-Bundle-SymbolicName: cosbench-swauth
+Bundle-Name: COSBench NIOEngine Client Bundle
+Bundle-SymbolicName: cosbench-nioengine
 Bundle-Version: 0.3.1.0
 Bundle-Vendor: intel
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

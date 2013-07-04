@@ -18,30 +18,16 @@ limitations under the License.
 package com.intel.cosbench.api.swift;
 
 import static com.intel.cosbench.client.swift.SwiftConstants.*;
-import static org.apache.http.HttpStatus.SC_NOT_FOUND;
-import static org.apache.http.HttpStatus.SC_OK;
 
 import java.io.*;
 import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
 
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.nio.protocol.HttpAsyncRequester;
 import org.apache.http.HttpHost;
-import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.HttpProcessorBuilder;
-import org.apache.http.protocol.RequestConnControl;
-import org.apache.http.protocol.RequestContent;
-import org.apache.http.protocol.RequestExpectContinue;
-import org.apache.http.protocol.RequestTargetHost;
-import org.apache.http.protocol.RequestUserAgent;
 
 import com.intel.cosbench.api.context.AuthContext;
-import com.intel.cosbench.api.nioengine.COSBFutureCallback;
 import com.intel.cosbench.api.nioengine.NIOClient;
 import com.intel.cosbench.api.nioengine.NIOEngine;
 import com.intel.cosbench.api.storage.*;
@@ -71,13 +57,10 @@ class SwiftNioStorage extends NoneStorage {
     /* user context */
     private String authToken;
     private String storageURL;
-    
-   
-//    private BasicNIOConnPool connPool;
+
     private NIOClient nioclient;
 //    private StatsCallback callback;
 
-    private HttpProcessor httpproc;
     
     public SwiftNioStorage() {
     	
@@ -87,14 +70,6 @@ class SwiftNioStorage extends NoneStorage {
 //        this.connPool = connPool;
     	this.nioclient = client;
 //    	this.callback = callback;
-    	
-//        this.httpproc = HttpProcessorBuilder.create()
-//                // Use standard client-side protocol interceptors
-//                .add(new RequestContent())
-//                .add(new RequestTargetHost())
-//                .add(new RequestConnControl())
-//                .add(new RequestUserAgent("Mozilla/5.0"))
-//                .add(new RequestExpectContinue()).build();
     }
 
     @Override
@@ -135,9 +110,8 @@ class SwiftNioStorage extends NoneStorage {
         client.abort();
     }
 
-    public static void main(String[] args)
+    public static void testGetObject()
     {
-
        	NIOEngine ioengine = new NIOEngine();
 
     	LogManager manager = LogFactory.createLogManager();
@@ -146,7 +120,7 @@ class SwiftNioStorage extends NoneStorage {
     	ioengine.init(null,logger);
     	ioengine.startup();
     	
-    	NIOClient ioclient = new NIOClient(ioengine.getConnPool());
+    	NIOClient ioclient = ioengine.newClient();
     	
     	SwiftNioStorage storage = new SwiftNioStorage();
     	storage.init(ioclient);
@@ -187,6 +161,12 @@ class SwiftNioStorage extends NoneStorage {
     	
     	ioengine.shutdown();
     	    	
+
+    }
+    
+    public static void main(String[] args)
+    {
+    	testGetObject();
     	
     }
     
