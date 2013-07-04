@@ -69,12 +69,12 @@ class WorkloadProcessor {
     }
 
     public void init() {
-        resolveWorklaod();
+        resolveWorkload();
         createStages();
         createExecutor();
     }
 
-    private void resolveWorklaod() {
+    private void resolveWorkload() {
         XmlConfig config = workloadContext.getConfig();
         WorkloadResolver resolver = CastorConfigTools.getWorkloadResolver();
         workloadContext.setWorkload(resolver.toWorkload(config));

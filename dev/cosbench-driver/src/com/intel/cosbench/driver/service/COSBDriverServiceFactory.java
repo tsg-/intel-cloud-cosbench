@@ -22,6 +22,7 @@ import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
 import java.io.File;
 
 import com.intel.cosbench.api.auth.AuthAPIService;
+import com.intel.cosbench.api.ioengine.IOEngineAPIService;
 import com.intel.cosbench.api.storage.StorageAPIService;
 import com.intel.cosbench.config.castor.CastorConfigTools;
 import com.intel.cosbench.driver.model.DriverContext;
@@ -40,18 +41,23 @@ public class COSBDriverServiceFactory extends AbstractServiceFactory implements
 
     private AuthAPIService authAPIs;
     private StorageAPIService storageAPIs;
+    private IOEngineAPIService ioengineAPIs;
 
     public COSBDriverServiceFactory() {
         /* force a XML mapping loading */
         CastorConfigTools.getMissionResolver();
     }
 
-    public void setAuthAPIs(AuthAPIService authAPIs) {
-        this.authAPIs = authAPIs;
+    public void setAuthAPIs(AuthAPIService apis) {
+        this.authAPIs = apis;
     }
 
-    public void setStorageAPIs(StorageAPIService storageAPIs) {
-        this.storageAPIs = storageAPIs;
+    public void setStorageAPIs(StorageAPIService apis) {
+        this.storageAPIs = apis;
+    }
+    
+    public void setIoengineAPIs(IOEngineAPIService apis) {
+        this.ioengineAPIs = apis;
     }
 
     @Override
@@ -76,6 +82,7 @@ public class COSBDriverServiceFactory extends AbstractServiceFactory implements
         COSBDriverService service = new COSBDriverService();
         DriverContext context = getDriverContext();
         service.setContext(context);
+        service.setIoengineAPIs(ioengineAPIs);
         service.setAuthAPIs(authAPIs);
         service.setStorageAPIs(storageAPIs);
         service.init();

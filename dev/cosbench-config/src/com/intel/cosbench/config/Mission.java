@@ -28,7 +28,7 @@ import org.apache.commons.lang.StringUtils;
  *
  */
 public class Mission implements Iterable<Operation> {
-	private static final IOEngine DEFAULT_IOENGINE = new IOEngine("none");
+	private static final Ioengine DEFAULT_IOENGINE = new Ioengine("none");
     private static final Auth DEFAULT_AUTH = new Auth("none");
     private static final Storage DEFAULT_STORAGE = new Storage("none");
 
@@ -43,8 +43,9 @@ public class Mission implements Iterable<Operation> {
     private int totalOps = 0;
     private long totalBytes = 0;
     private int totalWorkers;
-    private IOEngine ioengine = DEFAULT_IOENGINE;
-    private Auth auth = DEFAULT_AUTH;
+    private Ioengine ioengine = DEFAULT_IOENGINE;
+
+	private Auth auth = DEFAULT_AUTH;
     private Storage storage = DEFAULT_STORAGE;
     private List<Operation> operations;
 
@@ -172,16 +173,16 @@ public class Mission implements Iterable<Operation> {
         this.totalWorkers = totalWorkers;
     }
 
-    public IOEngine getIOEngine() {
-    	return ioengine;    	
-    }
-    
-    public void setIOEngine(IOEngine ioengine) {
+    public Ioengine getIoengine() {
+		return ioengine;
+	}
+
+	public void setIoengine(Ioengine ioengine) {
         if (ioengine == null)
             throw new ConfigException("a mission must have its ioengine");
         this.ioengine = ioengine;
-    }
-    
+	}
+ 
     public Auth getAuth() {
         return auth;
     }

@@ -78,6 +78,10 @@ class MissionHandler {
         this.missionContext = missionContext;
     }
 
+    public void setIOEngineAPIs(IOEngineAPIService ioengineAPIs) {
+    	this.ioengineAPIs = ioengineAPIs;
+    }
+    
     public void setAuthAPIs(AuthAPIService authAPIs) {
         this.authAPIs = authAPIs;
     }
@@ -151,7 +155,10 @@ class MissionHandler {
 
     private void parseConfigs() {
         Mission m = missionContext.getMission();
-        ioengineConfig = KVConfigParser.parse(m.getAuth().getConfig());
+        ioengineConfig = KVConfigParser.parse(m.getIoengine().getConfig());
+        
+        int channels = ioengineConfig.getInt("channels", 1);
+        LOGGER.info("IO Channels = " + channels);
         authConfig = KVConfigParser.parse(m.getAuth().getConfig());
         retry = authConfig.getInt(AUTH_RETRY_KEY, DEFAULT_AUTH_RETRY);
         storageConfig = KVConfigParser.parse(m.getStorage().getConfig());
@@ -160,7 +167,7 @@ class MissionHandler {
     private void createIOEngine() {
         LogManager manager = missionContext.getLogManager();
         Mission mission = missionContext.getMission();
-    	ioengine = createIOEngineApi(mission.getIOEngine(), manager);
+    	ioengine = createIOEngineApi(mission.getIoengine(), manager);
     	
     	ioengine.init(ioengineConfig, manager.getLogger());
     }
@@ -187,7 +194,7 @@ class MissionHandler {
         return context;
     }
     
-    private IOEngineAPI createIOEngineApi(IOEngine ioengine, LogManager manager) {
+    private IOEngineAPI createIOEngineApi(Ioengine ioengine, LogManager manager) {
         String type = ioengine.getType();
         Logger logger = manager.getLogger();
         return ioengineAPIs.getIOEngine(type, ioengineConfig, logger);

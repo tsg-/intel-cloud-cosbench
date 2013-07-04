@@ -28,12 +28,16 @@ import org.apache.commons.lang.StringUtils;
  */
 public class Workload {
 
+	private static final Ioengine DEFAULT_IOENGINE = new Ioengine("none");
     private static final Auth DEFAULT_AUTH = new Auth("none");
     private static final Storage DEFAULT_STORAGE = new Storage("none");
 
     private String name;
     private String description;
-    private Auth auth = DEFAULT_AUTH;
+    private Ioengine ioengine = DEFAULT_IOENGINE;
+
+
+	private Auth auth = DEFAULT_AUTH;
     private Storage storage = DEFAULT_STORAGE;
     private Workflow workflow;
 
@@ -59,7 +63,17 @@ public class Workload {
         /* description might be empty */
         this.description = description;
     }
+    
+    public Ioengine getIoengine() {
+		return ioengine;
+	}
 
+	public void setIoengine(Ioengine ioengine) {
+        if (ioengine == null)
+            throw new ConfigException("a mission must have its ioengine");
+        this.ioengine = ioengine;
+	}
+	
     public Auth getAuth() {
         return auth;
     }

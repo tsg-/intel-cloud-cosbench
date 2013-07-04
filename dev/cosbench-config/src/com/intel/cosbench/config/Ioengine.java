@@ -26,20 +26,20 @@ import org.apache.commons.lang.StringUtils;
  * @author ywang19
  *
  */
-public class IOEngine {
+public class Ioengine {
 
     private String type;
     private String config;
 
-    public IOEngine() {
+    public Ioengine() {
         /* empty */
     }
 
-    public IOEngine(String type) {
+    public Ioengine(String type) {
         setType(type);
     }
 
-    public IOEngine(String type, String config) {
+    public Ioengine(String type, String config) {
         setType(type);
         setConfig(config);
     }
