@@ -394,21 +394,13 @@ public class NIOEngine extends NoneIOEngine {
         
         try
         {
-//	    	// Create HTTP protocol processing chain
-
-	        // Create client-side HTTP protocol handler
 	        HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
-	        
-	        // Create client-side I/O event dispatch
 	        ioEventDispatch = new DefaultHttpClientIODispatch(protocolHandler, ConnectionConfig.DEFAULT);
-	        // Create client-side I/O reactor
 	        ioReactor = new DefaultConnectingIOReactor(IOReactorConfig.custom()
 	        		.setIoThreadCount(channels)
 	        		.build(), 
 	        		null);
-	        // Create HTTP connection pool
 	        connPool = new BasicNIOConnPool(ioReactor, ConnectionConfig.DEFAULT);
-	        // Limit total number of connections to just two
 	        connPool.setDefaultMaxPerRoute(concurrency);
 	        connPool.setMaxTotal(concurrency);
         }catch(Exception e) {
@@ -448,12 +440,9 @@ public class NIOEngine extends NoneIOEngine {
         super.startup();
         
         try {
-            // 
         	Thread ioThread = new Thread(new Runnable() {
-
                 public void run() {
                     try {
-                        // Ready to go!
                         ioReactor.execute(ioEventDispatch);
                     } catch (InterruptedIOException ex) {
                         System.err.println("Interrupted");
@@ -462,9 +451,7 @@ public class NIOEngine extends NoneIOEngine {
                     }
                     System.out.println("Shutdown");
                 }
-
             });
-            // Start the client thread
             ioThread.start();            
         	
         } catch (Exception e) {
@@ -483,7 +470,7 @@ public class NIOEngine extends NoneIOEngine {
     
     public NIOClient newClient() {
     	
-    	NIOClient ioclient = new NIOClient(getConnPool(), new CountDownLatch(concurrency));
+    	NIOClient ioclient = new NIOClient(getConnPool());
     	
     	return ioclient;
     }

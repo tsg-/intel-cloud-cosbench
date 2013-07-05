@@ -1,23 +1,33 @@
 package com.intel.cosbench.api.nioengine;
 
-import java.util.concurrent.CountDownLatch;
-
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 
 public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 	private HttpHost target;
+	private CountUpDownLatch latch;
 	
-	private CountDownLatch latch;
-	
-	public COSBFutureCallback(CountDownLatch latch) {
-		this.latch = latch;
+	public COSBFutureCallback(long count) {
+		this.latch = new CountUpDownLatch(count);
 	}
 	
-	public COSBFutureCallback(CountDownLatch latch, HttpHost target) {
+	public COSBFutureCallback(long count, HttpHost target) {
+		this(count);
 		this.target = target;
-		this.latch = latch;
+	}
+	
+	public long countUp() {
+		return latch.countUp();
+	}
+	
+	public long countDown() {
+		return latch.countDown();
+	}
+	
+	public void await() throws InterruptedException {
+		if(latch != null)
+			latch.await();
 	}
 	
 	public void setTarget(HttpHost target) {
@@ -25,18 +35,18 @@ public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 	}
 	
     public void completed(final HttpResponse response) {
-    	latch.countDown();
-        System.out.println("SUCCEED: " + target + "->" + response.getStatusLine());
+//    	long ql = latch.countDown();
+        System.out.println("SUCCEED: " + target + "->" + response.getStatusLine() + "\t Outstanding Request is " + latch.countDown());
     }
 
     public void failed(final Exception ex) {
-    	latch.countDown();
-        System.out.println("FAILED: " + target + "->" + ex);
+//    	latch.countDown();
+        System.out.println("FAILED: " + target + "->" + ex + "\t Outstanding Request is " + latch.countDown());
     }
 
     public void cancelled() {
-    	latch.countDown();
-        System.out.println("CANCELLED: " + target + " cancelled");
+//    	latch.countDown();
+        System.out.println("CANCELLED: " + target + " cancelled" + "\t Outstanding Request is " + latch.countDown());
     }
     
 }

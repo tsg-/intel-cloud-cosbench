@@ -3,6 +3,7 @@ package com.intel.cosbench.api.nioengine;
 import java.io.File;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -34,16 +35,16 @@ public class NIOClient {
 
 	private BasicNIOConnPool connPool;
 	private HttpAsyncRequester requester;
-	private CountDownLatch latch;
+//	private CountDownLatch latch;
 	private COSBFutureCallback futureCallback;
 	
 	private String doc_root = "c:/temp/download/";
 	
-	public NIOClient(BasicNIOConnPool connPool, CountDownLatch latch)
+	public NIOClient(BasicNIOConnPool connPool)
 	{
 		this.connPool = connPool;
-		this.latch = latch; // new CountDownLatch(connPool.getDefaultMaxPerRoute());
-    	futureCallback =  new COSBFutureCallback(latch);
+//		this.latch = latch; // new CountDownLatch(connPool.getDefaultMaxPerRoute());
+    	futureCallback =  new COSBFutureCallback(0);
 		
         HttpProcessor httpproc = HttpProcessorBuilder.create()
                 // Use standard client-side protocol interceptors
@@ -58,7 +59,8 @@ public class NIOClient {
 	
 	public void await() throws InterruptedException
 	{
-		latch.await();
+		if(futureCallback != null)
+			futureCallback.await();
 	}
 	
 	public BasicHttpRequest makeHttpGet(String path)
@@ -71,20 +73,18 @@ public class NIOClient {
 	public void download(HttpHost target, HttpRequest request) throws Exception {
         // Create HTTP requester
 //    	HttpHost proxy = new HttpHost("proxy-prc.intel.com", 911, "http");
-        
-		futureCallback.setTarget(target);
-    	
     	long start = System.currentTimeMillis();
     	
     	HttpCoreContext coreContext = HttpCoreContext.create();
     	String uri = request.getRequestLine().getUri();
     	String down_path = doc_root + "/" + uri;
     	
-//    	COSBFutureCallback futureCallback =  new COSBFutureCallback(latch, target);
-    	
     	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
 //    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerNullSink(ByteBuffer.allocate(8192)));
    		
+ 		// initialize future callback.
+		futureCallback.setTarget(target);
+    	futureCallback.countUp();
         Future<HttpResponse> future = requester.execute(
                 new BasicAsyncRequestProducer(target, request),
                 consumer,
@@ -106,9 +106,7 @@ public class NIOClient {
     }
 
 	public void upload(HttpHost target, HttpEntityEnclosingRequest request) throws Exception {
-//    	COSBFutureCallback futureCallback =  new COSBFutureCallback(latch, target);
-//		futureCallback.setTarget(target);
-		
+	
     	long start = System.currentTimeMillis();
     	
     	HttpCoreContext coreContext = HttpCoreContext.create();
@@ -130,6 +128,9 @@ public class NIOClient {
  			// 			producer = new BaseZCProducer(URI.create(up_path), file, contentType); 
  		}
     	
+ 		// initialize future callback.
+		futureCallback.setTarget(target);
+    	futureCallback.countUp();
         Future<HttpResponse> future = requester.execute(
         		new BaseZCAsyncRequestProducer(target, request, producer),
                 consumer,

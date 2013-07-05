@@ -1,6 +1,7 @@
 package com.intel.cosbench.api.nioengine;
 
 import java.util.Random;
+import java.util.concurrent.CyclicBarrier;
 
 import org.apache.http.HttpHost;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
@@ -46,9 +47,9 @@ public class NIOEngineTester {
             Random rnd = new Random(23);
             
             int range = 10;
-
-            
-            for(int i=0; i< 10; i++)
+            int total = 100;
+        	
+            for(int i=0; i< total; i++)
             {
 	            int idx = (rnd.nextInt(range)+1);
 	        	
@@ -89,8 +90,9 @@ public class NIOEngineTester {
             Random rnd = new Random(23);
             
             int range = 10;
+            int total = 100;            
 
-            for(int i=0; i< 10; i++)
+            for(int i=0; i< total; i++)
             {
 	            int idx = (rnd.nextInt(range)+1);
 	        	
@@ -119,9 +121,9 @@ public class NIOEngineTester {
     	NIOEngineTester tester = new NIOEngineTester();
     	tester.init();
     	
-    	tester.testGET();
+//    	tester.testGET();
     	
-//    	tester.testPUT();
+    	tester.testPUT();
     	
     	tester.fini();
     	
