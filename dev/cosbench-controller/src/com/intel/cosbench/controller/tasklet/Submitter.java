@@ -60,6 +60,7 @@ class Submitter extends AbstractCommandTasklet<SubmitResponse> {
         mission.setTotalOps(work.getTotalOps());
         mission.setTotalBytes(work.getTotalBytes());
         mission.setTotalWorkers(work.getWorkers());
+        mission.setIoengine(work.getIoengine());
         mission.setAuth(work.getAuth());
         mission.setStorage(work.getStorage());
         mission.setOperations(work.getOperations());

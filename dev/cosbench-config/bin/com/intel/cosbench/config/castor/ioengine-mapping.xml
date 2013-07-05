@@ -2,7 +2,7 @@
 
 <mapping>
 
-	<class name="com.intel.cosbench.config.IOEngine">
+	<class name="com.intel.cosbench.config.Ioengine">
 
 		<mapt-to xml="ioengine" />
 

@@ -375,7 +375,8 @@ public class WorkloadConfigurationController extends AbstractController {
     	
     	workload.setName(name);
     	workload.setDescription(desc);
-    	
+
+    	workload.setIoengine(new Ioengine(getParm(req, "ioengine.type"), getParm(req, "ioengine.config")));
     	workload.setAuth(new Auth(getParm(req, "auth.type"), getParm(req, "auth.config")));
     	workload.setStorage(new Storage(getParm(req, "storage.type"), getParm(req, "storage.config")));
 

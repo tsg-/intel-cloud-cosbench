@@ -49,7 +49,11 @@
 		<field name="totalWorkers" type="integer">
 			<bind-xml name="totalWorkers" node="attribute" />
 		</field>
-
+		
+		<field name="ioengine" type="com.intel.cosbench.config.Ioengine">
+			<bind-xml name="ioengine" node="element" />
+		</field>
+		
 		<field name="auth" type="com.intel.cosbench.config.Auth">
 			<bind-xml name="auth" node="element" />
 		</field>

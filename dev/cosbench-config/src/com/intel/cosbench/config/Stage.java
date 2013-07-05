@@ -31,7 +31,16 @@ import org.apache.commons.lang.StringUtils;
 public class Stage implements Iterable<Work> {
 
     private String name;
-    private Auth auth;
+    private Ioengine ioengine;
+    public Ioengine getIoengine() {
+		return ioengine;
+	}
+
+	public void setIoengine(Ioengine ioengine) {
+		this.ioengine = ioengine;
+	}
+
+	private Auth auth;
     private Storage storage;
     private List<Work> works;
 
@@ -101,6 +110,9 @@ public class Stage implements Iterable<Work> {
         setAuth(getAuth());
         setStorage(getStorage());
         setWorks(getWorks());
+        for (Work work : works)
+        	if (work.getIoengine() == null)
+        		work.setIoengine(ioengine);
         for (Work work : works)
             if (work.getAuth() == null)
                 work.setAuth(auth);

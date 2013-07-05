@@ -11,9 +11,17 @@ public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 	
 	private CountDownLatch latch;
 	
-	public COSBFutureCallback(HttpHost target, CountDownLatch latch) {
+	public COSBFutureCallback(CountDownLatch latch) {
+		this.latch = latch;
+	}
+	
+	public COSBFutureCallback(CountDownLatch latch, HttpHost target) {
 		this.target = target;
 		this.latch = latch;
+	}
+	
+	public void setTarget(HttpHost target) {
+		this.target = target;
 	}
 	
     public void completed(final HttpResponse response) {

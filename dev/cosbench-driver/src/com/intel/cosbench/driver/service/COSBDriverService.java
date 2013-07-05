@@ -25,6 +25,7 @@ import java.util.concurrent.*;
 import org.apache.commons.lang.math.RandomUtils;
 
 import com.intel.cosbench.api.auth.AuthAPIService;
+import com.intel.cosbench.api.ioengine.IOEngineAPIService;
 import com.intel.cosbench.api.storage.StorageAPIService;
 import com.intel.cosbench.config.XmlConfig;
 import com.intel.cosbench.driver.model.*;
@@ -49,6 +50,7 @@ class COSBDriverService implements DriverService, MissionListener {
 
     private AuthAPIService authAPIs;
     private StorageAPIService storageAPIs;
+    private IOEngineAPIService ioengineAPIs;
 
     private ExecutorService executor;
     private MissionRepository memRepo = new RAMMissionRepository();
@@ -68,6 +70,10 @@ class COSBDriverService implements DriverService, MissionListener {
     public void setStorageAPIs(StorageAPIService storageAPIs) {
         this.storageAPIs = storageAPIs;
     }
+
+	public void setIoengineAPIs(IOEngineAPIService ioengineAPIs) {
+		this.ioengineAPIs = ioengineAPIs;
+	}
 
     public void init() {
         handlers = new HashMap<String, MissionHandler>();
@@ -106,6 +112,7 @@ class COSBDriverService implements DriverService, MissionListener {
     private MissionHandler createHandler(MissionContext mission) {
         MissionHandler handler = new MissionHandler();
         handler.setMissionContext(mission);
+        handler.setIOEngineAPIs(ioengineAPIs);
         handler.setAuthAPIs(authAPIs);
         handler.setStorageAPIs(storageAPIs);
         handler.init(); // configurations will be parsed

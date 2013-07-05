@@ -27,7 +27,8 @@ public class PingResponse extends Response {
 
     private String name; /* driver name */
     private String address; /* driver address */
-
+    private boolean status; /* driver status */
+    
     public PingResponse() {
         /* empty */
     }
@@ -48,4 +49,11 @@ public class PingResponse extends Response {
         this.address = address;
     }
 
+    public boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
 }
