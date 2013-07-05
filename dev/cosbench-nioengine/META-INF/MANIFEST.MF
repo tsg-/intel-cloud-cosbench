@@ -14,4 +14,5 @@ Import-Package: com.intel.cosbench.api.context,
  com.intel.cosbench.config,
  com.intel.cosbench.log,
  org.apache.commons.io.input;version="1.4.0",
- org.apache.commons.lang.math;version="2.5.0"
+ org.apache.commons.lang.math;version="2.5.0",
+ org.apache.commons.collections

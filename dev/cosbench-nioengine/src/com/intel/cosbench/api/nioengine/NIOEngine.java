@@ -21,7 +21,6 @@ import static com.intel.cosbench.api.nioengine.NIOEngineConstants.*;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.util.concurrent.CountDownLatch;
 
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
@@ -382,10 +381,14 @@ public class NIOEngine extends NoneIOEngine {
         super.init(config, logger);
         
         //@TODO
-//        channels = 8;	// how many io channel reactors will be used to serve i/o.
-//        concurrency = 16;	// how many outstanding io can support.
-		channels = config.getInt(IOENGINE_CHANNELS_KEY, IOENGINE_CHANNELS_DEFAULT);
-		concurrency = config.getInt(IOENGINE_CONCURRENCY_KEY, IOENGINE_CONCURRENCY_DEFAULT);
+        if(config != null)
+        {
+			channels = config.getInt(IOENGINE_CHANNELS_KEY, IOENGINE_CHANNELS_DEFAULT);
+			concurrency = config.getInt(IOENGINE_CONCURRENCY_KEY, IOENGINE_CONCURRENCY_DEFAULT);
+        } else {
+	          channels = 8;	// how many io channel reactors will be used to serve i/o.
+	          concurrency = 16;	// how many outstanding io can support.
+        }
 
         parms.put(IOENGINE_CHANNELS_KEY, channels);
         parms.put(IOENGINE_CONCURRENCY_KEY, concurrency);

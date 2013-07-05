@@ -1,7 +1,6 @@
 package com.intel.cosbench.api.nioengine;
 
 import java.util.Random;
-import java.util.concurrent.CyclicBarrier;
 
 import org.apache.http.HttpHost;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
@@ -10,6 +9,7 @@ import org.apache.http.message.BasicHttpRequest;
 import com.intel.cosbench.log.LogFactory;
 import com.intel.cosbench.log.LogManager;
 import com.intel.cosbench.log.Logger;
+
 
 public class NIOEngineTester {
 
