@@ -24,10 +24,10 @@ public interface NIOEngineConstants {
     // --------------------------------------------------------------------------
 
     String IOENGINE_CHANNELS_KEY = "channels";
-    int IOENGINE_CHANNELS_DEFAULT = 8;
+    int IOENGINE_CHANNELS_DEFAULT = 1;
     
     String IOENGINE_CONCURRENCY_KEY = "concurrency";
-    int IOENGINE_CONCURRENCY_DEFAULT = 16;
+    int IOENGINE_CONCURRENCY_DEFAULT = 2;
     
    
 }

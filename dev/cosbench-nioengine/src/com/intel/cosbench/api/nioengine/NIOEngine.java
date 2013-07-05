@@ -382,13 +382,13 @@ public class NIOEngine extends NoneIOEngine {
         super.init(config, logger);
         
         //@TODO
-        channels = 8;	// how many io channel reactors will be used to serve i/o.
-        concurrency = 16;	// how many outstanding io can support.
-//      channels = config.getInt(IOENGINE_CHANNELS_KEY, IOENGINE_CHANNELS_DEFAULT);
-//      concurrency = config.getInt(IOENGINE_CONCURRENCY_KEY, IOENGINE_CONCURRENCY_DEFAULT);
-//
-//        parms.put(IOENGINE_CHANNELS_KEY, channels);
-//        parms.put(IOENGINE_CONCURRENCY_KEY, concurrency);
+//        channels = 8;	// how many io channel reactors will be used to serve i/o.
+//        concurrency = 16;	// how many outstanding io can support.
+		channels = config.getInt(IOENGINE_CHANNELS_KEY, IOENGINE_CHANNELS_DEFAULT);
+		concurrency = config.getInt(IOENGINE_CONCURRENCY_KEY, IOENGINE_CONCURRENCY_DEFAULT);
+
+        parms.put(IOENGINE_CHANNELS_KEY, channels);
+        parms.put(IOENGINE_CONCURRENCY_KEY, concurrency);
                 
         logger.info("using IOEngine config: {}", parms);
         
