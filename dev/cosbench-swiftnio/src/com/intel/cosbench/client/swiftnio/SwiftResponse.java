@@ -15,9 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License. 
 */ 
 
-package com.intel.cosbench.client.swift;
+package com.intel.cosbench.client.swiftnio;
 
-import static com.intel.cosbench.client.swift.SwiftConstants.*;
+import static com.intel.cosbench.client.swiftnio.SwiftConstants.*;
 
 import java.io.*;
 

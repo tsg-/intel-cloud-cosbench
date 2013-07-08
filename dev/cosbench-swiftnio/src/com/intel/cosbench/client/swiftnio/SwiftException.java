@@ -15,15 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License. 
 */ 
 
-package com.intel.cosbench.client.swift;
+package com.intel.cosbench.client.swiftnio;
 
 import org.apache.http.*;
 
-public class SwiftConflictException extends SwiftException {
+public class SwiftException extends Exception {
 
-    public SwiftConflictException(String message, Header[] httpHeaders,
+    private Header[] httpHeaders;
+    private StatusLine httpStatusLine;
+
+    public SwiftException(String message, Header[] httpHeaders,
             StatusLine httpStatusLine) {
-        super(message, httpHeaders, httpStatusLine);
+        super(message);
+        this.httpHeaders = httpHeaders;
+        this.httpStatusLine = httpStatusLine;
+    }
+
+    public Header[] getHttpHeaders() {
+        return httpHeaders;
+    }
+
+    public StatusLine getHttpStatusLine() {
+        return httpStatusLine;
     }
 
     private static final long serialVersionUID = 1L;

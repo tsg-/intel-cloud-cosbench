@@ -15,30 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License. 
 */ 
 
-package com.intel.cosbench.client.swift;
+package com.intel.cosbench.api.swiftnio;
 
-import org.apache.http.*;
+import com.intel.cosbench.api.storage.*;
 
-public class SwiftException extends Exception {
+public class SwiftNioStorageFactory implements StorageAPIFactory {
 
-    private Header[] httpHeaders;
-    private StatusLine httpStatusLine;
-
-    public SwiftException(String message, Header[] httpHeaders,
-            StatusLine httpStatusLine) {
-        super(message);
-        this.httpHeaders = httpHeaders;
-        this.httpStatusLine = httpStatusLine;
+    @Override
+    public String getStorageName() {
+        return "swiftnio";
     }
 
-    public Header[] getHttpHeaders() {
-        return httpHeaders;
+    @Override
+    public StorageAPI getStorageAPI() {
+        return new SwiftNioStorage();
     }
-
-    public StatusLine getHttpStatusLine() {
-        return httpStatusLine;
-    }
-
-    private static final long serialVersionUID = 1L;
 
 }

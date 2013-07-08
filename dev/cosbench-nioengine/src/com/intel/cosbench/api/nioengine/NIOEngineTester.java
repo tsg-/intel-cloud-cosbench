@@ -121,9 +121,9 @@ public class NIOEngineTester {
     	NIOEngineTester tester = new NIOEngineTester();
     	tester.init();
     	
-//    	tester.testGET();
+    	tester.testGET();
     	
-    	tester.testPUT();
+//    	tester.testPUT();
     	
     	tester.fini();
     	

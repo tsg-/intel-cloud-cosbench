@@ -386,8 +386,8 @@ public class NIOEngine extends NoneIOEngine {
 			channels = config.getInt(IOENGINE_CHANNELS_KEY, IOENGINE_CHANNELS_DEFAULT);
 			concurrency = config.getInt(IOENGINE_CONCURRENCY_KEY, IOENGINE_CONCURRENCY_DEFAULT);
         } else {
-	          channels = 8;	// how many io channel reactors will be used to serve i/o.
-	          concurrency = 16;	// how many outstanding io can support.
+	          channels = 2;	// how many io channel reactors will be used to serve i/o.
+	          concurrency = 4;	// how many outstanding io can support.
         }
 
         parms.put(IOENGINE_CHANNELS_KEY, channels);

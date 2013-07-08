@@ -15,20 +15,32 @@ See the License for the specific language governing permissions and
 limitations under the License. 
 */ 
 
-package com.intel.cosbench.api.swift;
+package com.intel.cosbench.client.swiftnio;
 
-import com.intel.cosbench.api.storage.*;
+public class SwiftAccount {
 
-public class SwiftNioStorageFactory implements StorageAPIFactory {
+    private long bytesUsed;
+    private int containerCount;
 
-    @Override
-    public String getStorageName() {
-        return "swiftnio";
+    public SwiftAccount(long bytesUsed, int containerCount) {
+        this.bytesUsed = bytesUsed;
+        this.containerCount = containerCount;
     }
 
-    @Override
-    public StorageAPI getStorageAPI() {
-        return new SwiftNioStorage();
+    public long getBytesUsed() {
+        return bytesUsed;
+    }
+
+    public void setBytesUsed(long bytesUsed) {
+        this.bytesUsed = bytesUsed;
+    }
+
+    public int getContainerCount() {
+        return containerCount;
+    }
+
+    public void setContainerCount(int containerCount) {
+        this.containerCount = containerCount;
     }
 
 }

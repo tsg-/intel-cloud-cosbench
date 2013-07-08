@@ -103,6 +103,7 @@ class MissionHandler {
         initOpPicker();
         parseConfigs();
         initIOEngine();
+        System.out.println("start up ioengine");
         createWorkers();
         createExecutor();
     }

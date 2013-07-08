@@ -12,7 +12,6 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.ContentEncoderChannel;
 import org.apache.http.nio.FileContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.util.Args;
 
 /**
@@ -67,8 +66,7 @@ public class ProducerFileSource extends ProducerSource<File> {
 	public void produceContent(final ContentEncoder encoder,
 			final IOControl ioctrl) throws IOException {
 		if (fileChannel == null) {
-			final FileInputStream in = new FileInputStream(file);
-			fileChannel = in.getChannel();
+			fileChannel = new FileInputStream(file).getChannel();
 			idx = 0;
 		}
 

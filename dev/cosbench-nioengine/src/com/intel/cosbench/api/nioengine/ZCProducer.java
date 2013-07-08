@@ -6,21 +6,20 @@ import java.net.URI;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 
 public class ZCProducer<T> extends BaseZCProducer {
 
-    private final ProducerSource<T> source;
-    private HttpResponse response;
+//    private final ProducerSource<T> source;
+//    private HttpResponse response;
     
     public ZCProducer(final ProducerSource<T> source,
             final URI requestURI,
             final File content,
             final ContentType contentType) throws FileNotFoundException {
         super(requestURI, content, contentType);
-        this.source = source;
+//        this.source = source;
     }
 
 //    @Override

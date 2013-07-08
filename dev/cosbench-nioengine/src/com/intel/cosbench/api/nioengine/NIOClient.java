@@ -2,8 +2,6 @@ package com.intel.cosbench.api.nioengine;
 
 import java.io.File;
 import java.net.URI;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -44,7 +42,8 @@ public class NIOClient {
 	{
 		this.connPool = connPool;
 //		this.latch = latch; // new CountDownLatch(connPool.getDefaultMaxPerRoute());
-    	futureCallback =  new COSBFutureCallback(0);
+		System.out.println("Max Conn Pool = " + connPool.getMaxTotal() + "\t Max Per Route = " + connPool.getDefaultMaxPerRoute());
+    	futureCallback =  new COSBFutureCallback(connPool.getMaxTotal());
 		
         HttpProcessor httpproc = HttpProcessorBuilder.create()
                 // Use standard client-side protocol interceptors
@@ -70,6 +69,15 @@ public class NIOClient {
 		return request;
 	}
 	
+	public void pause(long timeout)
+	{
+		try {
+			Thread.currentThread().sleep(timeout);
+		}catch(InterruptedException ie) {
+			
+		}
+	}
+	
 	public void download(HttpHost target, HttpRequest request) throws Exception {
         // Create HTTP requester
 //    	HttpHost proxy = new HttpHost("proxy-prc.intel.com", 911, "http");
@@ -93,7 +101,7 @@ public class NIOClient {
                 coreContext,
                 // Handle HTTP response from a callback
                 futureCallback);
-        
+
         if(future.isDone()) {
         	System.out.println("Request is done.");
         }

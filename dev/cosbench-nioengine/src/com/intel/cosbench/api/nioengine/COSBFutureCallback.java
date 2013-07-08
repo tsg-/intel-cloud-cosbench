@@ -6,13 +6,13 @@ import org.apache.http.concurrent.FutureCallback;
 
 public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 	private HttpHost target;
-	private CountUpDownLatch latch;
+	private CountUpDownLatchWithLimit latch;
 	
-	public COSBFutureCallback(long count) {
-		this.latch = new CountUpDownLatch(count);
+	public COSBFutureCallback(int count) {
+		this.latch = new CountUpDownLatchWithLimit(count);
 	}
 	
-	public COSBFutureCallback(long count, HttpHost target) {
+	public COSBFutureCallback(int count, HttpHost target) {
 		this(count);
 		this.target = target;
 	}

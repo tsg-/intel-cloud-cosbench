@@ -15,9 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License. 
 */ 
 
-package com.intel.cosbench.api.swift;
+package com.intel.cosbench.api.swiftnio;
 
-import static com.intel.cosbench.client.swift.SwiftConstants.*;
+import static com.intel.cosbench.client.swiftnio.SwiftConstants.*;
 
 import java.io.*;
 import java.net.SocketTimeoutException;
@@ -32,7 +32,7 @@ import com.intel.cosbench.api.nioengine.NIOClient;
 import com.intel.cosbench.api.nioengine.NIOEngine;
 import com.intel.cosbench.api.storage.*;
 import com.intel.cosbench.client.http.HttpClientUtil;
-import com.intel.cosbench.client.swift.*;
+import com.intel.cosbench.client.swiftnio.*;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.LogFactory;
 import com.intel.cosbench.log.LogManager;
@@ -80,6 +80,7 @@ class SwiftNioStorage extends NoneStorage {
 
         parms.put(CONN_TIMEOUT_KEY, timeout);
 
+        
         logger.debug("using storage config: {}", parms);
 
         logger.debug("swift client has been initialized");
@@ -88,13 +89,13 @@ class SwiftNioStorage extends NoneStorage {
     @Override
     public void setAuthContext(AuthContext info) {
         super.setAuthContext(info);
-        authToken = info.getStr(AUTH_TOKEN_KEY);
-        storageURL = info.getStr(STORAGE_URL_KEY);
-        try {
-            client.init(authToken, storageURL);
-        } catch (Exception e) {
-            throw new StorageException(e);
-        }
+//        authToken = info.getStr(AUTH_TOKEN_KEY);
+//        storageURL = info.getStr(STORAGE_URL_KEY);
+//        try {
+//            client.init(authToken, storageURL);
+//        } catch (Exception e) {
+//            throw new StorageException(e);
+//        }
         logger.debug("using auth token: {}, storage url: {}", authToken, storageURL);
     }
 

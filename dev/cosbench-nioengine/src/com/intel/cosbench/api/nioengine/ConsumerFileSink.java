@@ -67,6 +67,11 @@ public class ConsumerFileSink extends ConsumerSink<File> {
 	            this.idx += transferred;
 	        }	
 
+//	        try{
+//	        	Thread.currentThread().sleep(1000);
+//	        }catch(InterruptedException ie) {
+//	        	
+//	        }
 //			System.out.println("Byte Transferred = " + transferred);
 	}
 	
