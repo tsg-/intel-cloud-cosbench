@@ -27,9 +27,10 @@ import java.util.Random;
 import org.apache.http.HttpHost;
 import org.apache.http.message.BasicHttpRequest;
 
-import com.intel.cosbench.api.client.NIOClient;
+import com.intel.cosbench.api.nio.client.NIOClient;
 import com.intel.cosbench.api.context.AuthContext;
-import com.intel.cosbench.api.nioengine.NIOEngine;
+import com.intel.cosbench.api.nio.engine.NIOEngine;
+import com.intel.cosbench.api.nio.util.*;
 import com.intel.cosbench.api.storage.*;
 import com.intel.cosbench.client.http.HttpClientUtil;
 import com.intel.cosbench.client.swiftnio.*;
@@ -121,7 +122,7 @@ class SwiftNioStorage extends NoneStorage {
     	ioengine.init(null,logger);
     	ioengine.startup();
     	
-    	NIOClient ioclient = ioengine.newClient();
+    	NIOClient ioclient = NIOEngineUtil.newClient(ioengine);
     	
     	SwiftNioStorage storage = new SwiftNioStorage();
     	storage.init(ioclient);

@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package com.intel.cosbench.api.producer;
+package com.intel.cosbench.api.nio.producer;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

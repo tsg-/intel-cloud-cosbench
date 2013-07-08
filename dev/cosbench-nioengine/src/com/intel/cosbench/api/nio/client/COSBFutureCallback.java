@@ -1,4 +1,4 @@
-package com.intel.cosbench.api.client;
+package com.intel.cosbench.api.nio.client;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;

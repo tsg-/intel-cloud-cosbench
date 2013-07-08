@@ -15,9 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License. 
 */ 
 
-package com.intel.cosbench.api.nioengine;
+package com.intel.cosbench.api.nio.engine;
 
-import static com.intel.cosbench.api.nioengine.NIOEngineConstants.*;
+import static com.intel.cosbench.api.nio.engine.NIOEngineConstants.*;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;

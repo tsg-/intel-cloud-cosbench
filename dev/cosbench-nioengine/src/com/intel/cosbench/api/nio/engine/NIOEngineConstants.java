@@ -15,26 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License. 
 */ 
 
-package com.intel.cosbench.api.nioengine;
+package com.intel.cosbench.api.nio.engine;
 
-import com.intel.cosbench.api.ioengine.*;
+public interface NIOEngineConstants {
 
-/**
- * One standard factory for NIOEngine.
- * 
- * @author ywang19
- *
- */
-public class NIOEngineFactory implements IOEngineAPIFactory {
+    // --------------------------------------------------------------------------
+    // IO REACTOR
+    // --------------------------------------------------------------------------
 
-    @Override
-    public String getName() {
-        return "nio";
-    }
-
-    @Override
-    public IOEngineAPI getAPI() {
-        return new NIOEngine();
-    }
-
+    String IOENGINE_CHANNELS_KEY = "channels";
+    int IOENGINE_CHANNELS_DEFAULT = 1;
+    
+    String IOENGINE_CONCURRENCY_KEY = "concurrency";
+    int IOENGINE_CONCURRENCY_DEFAULT = 2;
+    
+   
 }

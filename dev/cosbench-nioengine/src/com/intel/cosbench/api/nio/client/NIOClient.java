@@ -1,4 +1,4 @@
-package com.intel.cosbench.api.client;
+package com.intel.cosbench.api.nio.client;
 
 import java.io.File;
 import java.net.URI;
@@ -25,12 +25,12 @@ import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 
-import com.intel.cosbench.api.consumer.ConsumerFileSink;
-import com.intel.cosbench.api.consumer.ZCConsumer;
-import com.intel.cosbench.api.producer.BaseZCAsyncRequestProducer;
-import com.intel.cosbench.api.producer.BaseZCProducer;
-import com.intel.cosbench.api.producer.ProducerBufferSource;
-import com.intel.cosbench.api.producer.ZCProducer;
+import com.intel.cosbench.api.nio.consumer.ConsumerFileSink;
+import com.intel.cosbench.api.nio.consumer.ZCConsumer;
+import com.intel.cosbench.api.nio.producer.BaseZCAsyncRequestProducer;
+import com.intel.cosbench.api.nio.producer.BaseZCProducer;
+import com.intel.cosbench.api.nio.producer.ProducerBufferSource;
+import com.intel.cosbench.api.nio.producer.ZCProducer;
 
 
 /**

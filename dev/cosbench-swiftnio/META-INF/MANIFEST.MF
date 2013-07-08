@@ -7,8 +7,10 @@ Bundle-Vendor: intel
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.intel.cosbench.api.auth,
  com.intel.cosbench.api.context,
+ com.intel.cosbench.api.nio.client,
+ com.intel.cosbench.api.nio.engine,
+ com.intel.cosbench.api.nio.util,
  com.intel.cosbench.api.storage,
- com.intel.cosbench.api.nioengine,
  com.intel.cosbench.client.http,
  com.intel.cosbench.config,
  com.intel.cosbench.log,

@@ -1,4 +1,4 @@
-package com.intel.cosbench.api.nioengine;
+package com.intel.cosbench.api.nio.engine;
 
 import java.util.Random;
 
@@ -6,8 +6,8 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.message.BasicHttpRequest;
 
-import com.intel.cosbench.api.client.NIOClient;
-import com.intel.cosbench.api.util.NIOEngineUtil;
+import com.intel.cosbench.api.nio.client.NIOClient;
+import com.intel.cosbench.api.nio.util.NIOEngineUtil;
 import com.intel.cosbench.log.LogFactory;
 import com.intel.cosbench.log.LogManager;
 import com.intel.cosbench.log.Logger;

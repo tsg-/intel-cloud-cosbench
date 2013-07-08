@@ -1,4 +1,4 @@
-package com.intel.cosbench.api.producer;
+package com.intel.cosbench.api.nio.producer;
 
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;

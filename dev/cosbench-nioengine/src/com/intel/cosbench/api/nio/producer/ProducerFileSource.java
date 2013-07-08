@@ -1,4 +1,4 @@
-package com.intel.cosbench.api.producer;
+package com.intel.cosbench.api.nio.producer;
 
 import java.io.File;
 import java.io.FileInputStream;

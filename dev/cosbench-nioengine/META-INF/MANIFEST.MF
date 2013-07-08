@@ -5,13 +5,17 @@ Bundle-SymbolicName: cosbench-nioengine
 Bundle-Version: 0.3.1.0
 Bundle-Vendor: intel
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.intel.cosbench.api.nioengine
+Export-Package: com.intel.cosbench.api.nio.client,
+ com.intel.cosbench.api.nio.consumer,
+ com.intel.cosbench.api.nio.engine,
+ com.intel.cosbench.api.nio.producer,
+ com.intel.cosbench.api.nio.util
 Bundle-ClassPath: .,
  org.apache.httpcomponents.httpclient_4.3-beta2.jar,
  org.apache.httpcomponents.httpcore_4.3-beta2.jar
 Import-Package: com.intel.cosbench.api.context,
  com.intel.cosbench.api.ioengine,
- com.intel.cosbench.api.nioengine,
+ com.intel.cosbench.api.nio.engine,
  com.intel.cosbench.config,
  com.intel.cosbench.log,
  org.apache.commons.collections,
