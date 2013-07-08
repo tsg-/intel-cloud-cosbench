@@ -55,7 +55,7 @@ public class ZCConsumer<T> extends AbstractAsyncResponseConsumer<HttpResponse> {
     @Override
     protected HttpResponse buildResult(final HttpContext context) throws Exception {
 	    if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-	        throw new HttpException("Upload failed: " + response.getStatusLine());
+	        throw new HttpException("Request failed: " + response.getStatusLine());
 	    }
         
         return this.response;

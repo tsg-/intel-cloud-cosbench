@@ -137,11 +137,12 @@ public class NIOClient {
     	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
 //    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerBufferSink(ByteBuffer.allocate(8192)));
     	
-    	 BaseZCProducer producer = null;
+
          final ContentType contentType = ContentType.TEXT_PLAIN;
          
          // for File based producer.
 // 		final File file = new File(up_path);
+//		ZCProducer<File> producer = null;
 // 		if (file.canRead()) {
 // 			producer = new ZCProducer<File>(new ProducerFileSource(file),
 // 					URI.create(up_path), contentType);
@@ -149,7 +150,7 @@ public class NIOClient {
 
          // for buffer based producer:
  		Random random = new Random(26);
- 		producer = new ZCProducer<ByteBuffer>(new ProducerBufferSource(random, 1024*128), URI.create(up_path), contentType);
+ 		ZCProducer<ByteBuffer> producer = new ZCProducer<ByteBuffer>(new ProducerBufferSource(random, 1024*128), URI.create(up_path), contentType);
  		
  		request.setEntity(producer.getEntity());
     	

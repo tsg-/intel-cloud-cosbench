@@ -126,10 +126,10 @@ public class NIOEngineTester {
     		HttpHost target = new HttpHost("127.0.0.1", 8080, "http");
             String sub = "128KB";
         	
-            Random rnd = new Random(23);
+            Random rnd = new Random(1023);
             
             int range = 10;
-            int total = 10;            
+            int total = 100;            
 
             for(int i=0; i< total; i++)
             {
@@ -162,9 +162,9 @@ public class NIOEngineTester {
     	tester.init();
     	
 //    	tester.testGET();
-//    	
-//    	tester.testPUT();
     	
+//    	tester.testPUT();
+//    	
     	tester.testDELETE();
     	
     	tester.fini();
