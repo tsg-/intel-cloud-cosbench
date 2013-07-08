@@ -2,6 +2,8 @@ package com.intel.cosbench.api.nioengine;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.ByteBuffer;
+import java.util.Random;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -9,8 +11,8 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
+import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.HttpAsyncRequester;
@@ -23,11 +25,13 @@ import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 
+
 /**
- * This class encapulates basic operations need for client to interact with NIO engine.
+ * This class encapulates basic operations need for client to interact with NIO
+ * engine.
  * 
  * @author ywang19
- *
+ * 
  */
 public class NIOClient {
 
@@ -35,7 +39,7 @@ public class NIOClient {
 	private HttpAsyncRequester requester;
 //	private CountDownLatch latch;
 	private COSBFutureCallback futureCallback;
-	
+
 	private String doc_root = "c:/temp/download/";
 	
 	public NIOClient(BasicNIOConnPool connPool)
@@ -69,18 +73,22 @@ public class NIOClient {
 		return request;
 	}
 	
-	public void pause(long timeout)
+	public HttpEntityEnclosingRequest makeHttpPut(String path)
 	{
-		try {
-			Thread.currentThread().sleep(timeout);
-		}catch(InterruptedException ie) {
-			
-		}
+		HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("PUT", path);
+		
+		return request;
+	}
+	
+	public BasicHttpRequest makeHttpDelete(String path)
+	{
+		BasicHttpRequest request = new BasicHttpRequest("DELETE", path);
+		
+		return request;
 	}
 	
 	public void download(HttpHost target, HttpRequest request) throws Exception {
         // Create HTTP requester
-//    	HttpHost proxy = new HttpHost("proxy-prc.intel.com", 911, "http");
     	long start = System.currentTimeMillis();
     	
     	HttpCoreContext coreContext = HttpCoreContext.create();
@@ -96,10 +104,8 @@ public class NIOClient {
         Future<HttpResponse> future = requester.execute(
                 new BasicAsyncRequestProducer(target, request),
                 consumer,
-//                new BasicAsyncResponseConsumer() ,
                 connPool,
                 coreContext,
-                // Handle HTTP response from a callback
                 futureCallback);
 
         if(future.isDone()) {
@@ -122,19 +128,23 @@ public class NIOClient {
     	String down_path = "c:/temp/download/" + uri;
     	String up_path = "c:/temp/upload/" + uri;
     	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
-//    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerNullSink(ByteBuffer.allocate(8192)));
+//    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerBufferSink(ByteBuffer.allocate(8192)));
     	
     	 BaseZCProducer producer = null;
          final ContentType contentType = ContentType.TEXT_PLAIN;
          
-         final File file = new File(up_path);
- 		if(file.canRead())
- 		{
- 			FileEntity entity = new FileEntity(file);
- 			request.setEntity(entity);
- 			producer = new ZCProducer<File>(new ProducerFileSource(file), URI.create(up_path), file, contentType);
- 			// 			producer = new BaseZCProducer(URI.create(up_path), file, contentType); 
- 		}
+         // for File based producer.
+// 		final File file = new File(up_path);
+// 		if (file.canRead()) {
+// 			producer = new ZCProducer<File>(new ProducerFileSource(file),
+// 					URI.create(up_path), contentType);
+// 		}
+
+         // for buffer based producer:
+ 		Random random = new Random(26);
+ 		producer = new ZCProducer<ByteBuffer>(new ProducerBufferSource(random, 1024*128), URI.create(up_path), contentType);
+ 		
+ 		request.setEntity(producer.getEntity());
     	
  		// initialize future callback.
 		futureCallback.setTarget(target);
@@ -158,5 +168,37 @@ public class NIOClient {
         
         System.out.println("Elapsed Time: " + (end-start) + " ms.");
     }
+	
+	public void delete(HttpHost target, HttpRequest request) throws Exception {
+        // Create HTTP requester
+    	long start = System.currentTimeMillis();
+    	
+    	HttpCoreContext coreContext = HttpCoreContext.create();
+    	String uri = request.getRequestLine().getUri();
+    	String down_path = doc_root + "/" + uri;
+    	
+    	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
+   		
+ 		// initialize future callback.
+		futureCallback.setTarget(target);
+    	futureCallback.countUp();
+        Future<HttpResponse> future = requester.execute(
+        		new BasicAsyncRequestProducer(target, request),
+                consumer,
+                connPool,
+                coreContext,
+                futureCallback);
+
+        if(future.isDone()) {
+        	System.out.println("Request is done.");
+        }
+        	
+//        future.get();
+        
+        long end = System.currentTimeMillis();
+        
+        System.out.println("Elapsed Time: " + (end-start) + " ms.");
+    }
+
 
 }

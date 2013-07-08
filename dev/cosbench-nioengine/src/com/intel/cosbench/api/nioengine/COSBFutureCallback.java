@@ -4,6 +4,12 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 
+/**
+ * The future callback class especially for COSBench use.
+ * 
+ * @author ywang19
+ *
+ */
 public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 	private HttpHost target;
 	private CountUpDownLatchWithLimit latch;

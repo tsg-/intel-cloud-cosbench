@@ -19,6 +19,12 @@ package com.intel.cosbench.api.nioengine;
 
 import com.intel.cosbench.api.ioengine.*;
 
+/**
+ * One standard factory for NIOEngine.
+ * 
+ * @author ywang19
+ *
+ */
 public class NIOEngineFactory implements IOEngineAPIFactory {
 
     @Override

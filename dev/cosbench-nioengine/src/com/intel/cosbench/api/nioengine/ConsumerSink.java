@@ -6,6 +6,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentDecoder;
 
+/**
+ * The class abstracts the functionalities necessary for one data consumer.
+ * 
+ * @author ywang19
+ *
+ * @param <T>
+ */
 abstract class ConsumerSink<T> {
     protected HttpResponse response;
     protected ContentType contentType;

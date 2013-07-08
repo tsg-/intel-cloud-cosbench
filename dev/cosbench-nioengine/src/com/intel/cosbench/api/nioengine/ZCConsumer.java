@@ -51,18 +51,9 @@ public class ZCConsumer<T> extends AbstractAsyncResponseConsumer<HttpResponse> {
             this.sink.disconnect();
         }
     }
-
-//    protected abstract T process(
-//            HttpResponse response, ConsumerSink sink) throws Exception;
-
 	
     @Override
     protected HttpResponse buildResult(final HttpContext context) throws Exception {
-//        final FileEntity entity = new FileEntity(this.file);
-//        entity.setContentType(this.response.getFirstHeader(HTTP.CONTENT_TYPE));
-//        this.response.setEntity(entity);
-//        process(this.response, this.sink);
-        
 	    if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
 	        throw new HttpException("Upload failed: " + response.getStatusLine());
 	    }
