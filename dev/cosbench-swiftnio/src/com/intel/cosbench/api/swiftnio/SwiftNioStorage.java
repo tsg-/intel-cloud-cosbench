@@ -27,8 +27,8 @@ import java.util.Random;
 import org.apache.http.HttpHost;
 import org.apache.http.message.BasicHttpRequest;
 
+import com.intel.cosbench.api.client.NIOClient;
 import com.intel.cosbench.api.context.AuthContext;
-import com.intel.cosbench.api.nioengine.NIOClient;
 import com.intel.cosbench.api.nioengine.NIOEngine;
 import com.intel.cosbench.api.storage.*;
 import com.intel.cosbench.client.http.HttpClientUtil;
@@ -189,7 +189,7 @@ class SwiftNioStorage extends NoneStorage {
 //            BasicHttpRequest request = new BasicHttpRequest("GET", path);
             
 //            CountDownLatch latch = new CountDownLatch(1);
-            nioclient.download(target, method);
+            nioclient.GET(target, method);
             
 //            latch.await();
             

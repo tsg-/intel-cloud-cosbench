@@ -4,9 +4,10 @@ import java.util.Random;
 
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 
+import com.intel.cosbench.api.client.NIOClient;
+import com.intel.cosbench.api.util.NIOEngineUtil;
 import com.intel.cosbench.log.LogFactory;
 import com.intel.cosbench.log.LogManager;
 import com.intel.cosbench.log.Logger;
@@ -39,7 +40,7 @@ public class NIOEngineTester {
     	
     	try
     	{
-        	NIOClient client = ioengine.newClient(); // new NIOClient(ioengine.getConnPool(), nioengine);
+        	NIOClient client = NIOEngineUtil.newClient(ioengine); // new NIOClient(ioengine.getConnPool(), nioengine);
         	
 
     		HttpHost target = new HttpHost("127.0.0.1", 8080, "http");
@@ -60,7 +61,7 @@ public class NIOEngineTester {
 	
 	            System.out.println("[" + (i+1) + "]" + " Start Timestamp=" + System.currentTimeMillis());
             
-	        	client.download(target, request);
+	        	client.GET(target, request);
 	            
 	            System.out.println("[" + (i+1) + "]" + " End Timestamp=" + System.currentTimeMillis());
             }
@@ -83,7 +84,7 @@ public class NIOEngineTester {
     	
     	try
     	{
-        	NIOClient client = ioengine.newClient(); //new NIOClient(ioengine.getConnPool());
+        	NIOClient client = NIOEngineUtil.newClient(ioengine); //new NIOClient(ioengine.getConnPool());
 
     		HttpHost target = new HttpHost("127.0.0.1", 8080, "http");
             String sub = "128KB";
@@ -104,7 +105,7 @@ public class NIOEngineTester {
 	            
 	            System.out.println("[" + (i+1) + "]" + " Start Timestamp=" + System.currentTimeMillis());
             
-	        	client.upload(target, request);
+	        	client.PUT(target, request);
 	            
 	            System.out.println("[" + (i+1) + "]" + " End Timestamp=" + System.currentTimeMillis());
             }
@@ -120,7 +121,7 @@ public class NIOEngineTester {
     	
     	try
     	{
-        	NIOClient client = ioengine.newClient(); //new NIOClient(ioengine.getConnPool());
+        	NIOClient client = NIOEngineUtil.newClient(ioengine); //new NIOClient(ioengine.getConnPool());
 
     		HttpHost target = new HttpHost("127.0.0.1", 8080, "http");
             String sub = "128KB";
@@ -128,7 +129,7 @@ public class NIOEngineTester {
             Random rnd = new Random(23);
             
             int range = 10;
-            int total = 100;            
+            int total = 10;            
 
             for(int i=0; i< total; i++)
             {
@@ -141,7 +142,7 @@ public class NIOEngineTester {
 	            
 	            System.out.println("[" + (i+1) + "]" + " Start Timestamp=" + System.currentTimeMillis());
             
-	        	client.delete(target, request);
+	        	client.DELETE(target, request);
 	            
 	            System.out.println("[" + (i+1) + "]" + " End Timestamp=" + System.currentTimeMillis());
             }

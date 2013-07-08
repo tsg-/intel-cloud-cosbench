@@ -11,8 +11,9 @@ Bundle-ClassPath: .,
  org.apache.httpcomponents.httpcore_4.3-beta2.jar
 Import-Package: com.intel.cosbench.api.context,
  com.intel.cosbench.api.ioengine,
+ com.intel.cosbench.api.nioengine,
  com.intel.cosbench.config,
  com.intel.cosbench.log,
+ org.apache.commons.collections,
  org.apache.commons.io.input;version="1.4.0",
- org.apache.commons.lang.math;version="2.5.0",
- org.apache.commons.collections
+ org.apache.commons.lang.math;version="2.5.0"

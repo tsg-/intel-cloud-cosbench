@@ -1,4 +1,4 @@
-package com.intel.cosbench.api.nioengine;
+package com.intel.cosbench.api.client;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;

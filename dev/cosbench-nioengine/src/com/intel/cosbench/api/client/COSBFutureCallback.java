@@ -1,8 +1,9 @@
-package com.intel.cosbench.api.nioengine;
+package com.intel.cosbench.api.client;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
+
 
 /**
  * The future callback class especially for COSBench use.

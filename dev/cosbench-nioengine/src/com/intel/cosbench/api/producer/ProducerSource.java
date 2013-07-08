@@ -1,4 +1,4 @@
-package com.intel.cosbench.api.nioengine;
+package com.intel.cosbench.api.producer;
 
 import java.io.IOException;
 

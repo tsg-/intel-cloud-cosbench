@@ -1,4 +1,4 @@
-package com.intel.cosbench.api.nioengine;
+package com.intel.cosbench.api.client;
 
 import java.io.File;
 import java.net.URI;
@@ -24,6 +24,13 @@ import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
+
+import com.intel.cosbench.api.consumer.ConsumerFileSink;
+import com.intel.cosbench.api.consumer.ZCConsumer;
+import com.intel.cosbench.api.producer.BaseZCAsyncRequestProducer;
+import com.intel.cosbench.api.producer.BaseZCProducer;
+import com.intel.cosbench.api.producer.ProducerBufferSource;
+import com.intel.cosbench.api.producer.ZCProducer;
 
 
 /**
@@ -87,7 +94,7 @@ public class NIOClient {
 		return request;
 	}
 	
-	public void download(HttpHost target, HttpRequest request) throws Exception {
+	public void GET(HttpHost target, HttpRequest request) throws Exception {
         // Create HTTP requester
     	long start = System.currentTimeMillis();
     	
@@ -119,7 +126,7 @@ public class NIOClient {
         System.out.println("Elapsed Time: " + (end-start) + " ms.");
     }
 
-	public void upload(HttpHost target, HttpEntityEnclosingRequest request) throws Exception {
+	public void PUT(HttpHost target, HttpEntityEnclosingRequest request) throws Exception {
 	
     	long start = System.currentTimeMillis();
     	
@@ -169,7 +176,7 @@ public class NIOClient {
         System.out.println("Elapsed Time: " + (end-start) + " ms.");
     }
 	
-	public void delete(HttpHost target, HttpRequest request) throws Exception {
+	public void DELETE(HttpHost target, HttpRequest request) throws Exception {
         // Create HTTP requester
     	long start = System.currentTimeMillis();
     	

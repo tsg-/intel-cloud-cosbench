@@ -1,4 +1,4 @@
-package com.intel.cosbench.api.nioengine;
+package com.intel.cosbench.api.consumer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

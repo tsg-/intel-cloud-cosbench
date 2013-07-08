@@ -33,6 +33,7 @@ import org.apache.http.nio.reactor.IOEventDispatch;
 
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.Logger;
+//import com.intel.cosbench.api.client.NIOClient;
 import com.intel.cosbench.api.context.*;
 import com.intel.cosbench.api.ioengine.*;
 
@@ -182,12 +183,7 @@ public class NIOEngine extends NoneIOEngine {
         return context;
     }
     
-    public NIOClient newClient() {
-    	
-    	NIOClient ioclient = new NIOClient(getConnPool());
-    	
-    	return ioclient;
-    }
+
 
 }
 

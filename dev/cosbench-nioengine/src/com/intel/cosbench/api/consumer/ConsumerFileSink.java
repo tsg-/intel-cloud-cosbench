@@ -1,4 +1,4 @@
-package com.intel.cosbench.api.nioengine;
+package com.intel.cosbench.api.consumer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
