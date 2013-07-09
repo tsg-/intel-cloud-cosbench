@@ -103,6 +103,7 @@ class MissionHandler {
         initOpPicker();
         parseConfigs();
         initIOEngine();
+        System.out.println("start up ioengine");
         createWorkers();
         createExecutor();
     }
@@ -168,8 +169,14 @@ class MissionHandler {
         LogManager manager = missionContext.getLogManager();
         Mission mission = missionContext.getMission();
     	ioengine = createIOEngineApi(mission.getIoengine(), manager);
+
+    	ioengine.startup();
     	
     	LOGGER.info("I/O Engine is initialized!");
+    }
+    
+    private void finiIOEngine() {
+    	ioengine.shutdown();
     }
     
     private void createWorkers() {
@@ -266,9 +273,7 @@ class MissionHandler {
         String id = missionContext.getId();
         LOGGER.debug("begin to execute mission {}", id);
         try {
-        	if(ioengine != null)
-        		ioengine.startup();
-        	
+
             stressTarget();
         } catch (TimeoutException te) {
             /* no need to shutdown agents again */
