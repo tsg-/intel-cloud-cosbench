@@ -24,6 +24,7 @@ import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
+import org.apache.http.util.Asserts;
 
 import com.intel.cosbench.api.nio.consumer.ConsumerFileSink;
 import com.intel.cosbench.api.nio.consumer.ZCConsumer;
@@ -49,10 +50,26 @@ public class NIOClient {
 
 	private String doc_root = "c:/temp/download/";
 	
+	public NIOClient(BasicNIOConnPool connPool, int concurrency)
+	{
+		Asserts.check(concurrency > 0, "concurrency must be a positive number");
+		this.connPool = connPool;
+    	futureCallback =  new COSBFutureCallback(concurrency);
+		
+        HttpProcessor httpproc = HttpProcessorBuilder.create()
+                // Use standard client-side protocol interceptors
+                .add(new RequestContent())
+                .add(new RequestTargetHost())
+                .add(new RequestConnControl())
+                .add(new RequestUserAgent("Mozilla/5.0"))
+                .add(new RequestExpectContinue()).build();
+        
+        this.requester = new HttpAsyncRequester(httpproc);
+	}
+	
 	public NIOClient(BasicNIOConnPool connPool)
 	{
 		this.connPool = connPool;
-//		this.latch = latch; // new CountDownLatch(connPool.getDefaultMaxPerRoute());
 		System.out.println("Max Conn Pool = " + connPool.getMaxTotal() + "\t Max Per Route = " + connPool.getDefaultMaxPerRoute());
     	futureCallback =  new COSBFutureCallback(connPool.getMaxTotal());
 		
@@ -120,6 +137,38 @@ public class NIOClient {
         }
         	
 //        future.get();
+        
+        long end = System.currentTimeMillis();
+        
+        System.out.println("Elapsed Time: " + (end-start) + " ms.");
+    }
+
+	public void GET_withWait(HttpHost target, HttpRequest request) throws Exception {
+        // Create HTTP requester
+    	long start = System.currentTimeMillis();
+    	
+    	HttpCoreContext coreContext = HttpCoreContext.create();
+    	String uri = request.getRequestLine().getUri();
+    	String down_path = doc_root + "/" + uri;
+    	
+    	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
+//    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerNullSink(ByteBuffer.allocate(8192)));
+   		
+ 		// initialize future callback.
+		futureCallback.setTarget(target);
+    	futureCallback.countUp();
+        Future<HttpResponse> future = requester.execute(
+                new BasicAsyncRequestProducer(target, request),
+                consumer,
+                connPool,
+                coreContext,
+                futureCallback);
+
+        if(future.isDone()) {
+        	System.out.println("Request is done.");
+        }
+        	
+        future.get();
         
         long end = System.currentTimeMillis();
         

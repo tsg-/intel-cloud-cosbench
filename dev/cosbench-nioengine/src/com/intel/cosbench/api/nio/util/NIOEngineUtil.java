@@ -11,4 +11,11 @@ public class NIOEngineUtil {
     	
     	return ioclient;
     }
+    
+    public static NIOClient newClient(NIOEngine ioengine, int concurrency) {
+    	
+    	NIOClient ioclient = new NIOClient(ioengine.getConnPool(), concurrency);
+    	
+    	return ioclient;
+    }
 }
