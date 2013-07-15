@@ -2,14 +2,14 @@ package com.intel.cosbench.api.nio.consumer;
 
 import java.io.IOException;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.protocol.AbstractAsyncResponseConsumer;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -54,11 +54,20 @@ public class ZCConsumer<T> extends AbstractAsyncResponseConsumer<HttpResponse> {
 	
     @Override
     protected HttpResponse buildResult(final HttpContext context) throws Exception {
-	    if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-	        throw new HttpException("Request failed: " + response.getStatusLine());
-	    }
+//	    if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+//	        throw new HttpException("Request failed: " + response.getStatusLine());
+//	    }
         
         return this.response;
+    }
+    
+    @Override
+    public HttpResponse getResult() {
+    	Header header = response.getFirstHeader(HTTP.CONTENT_LEN);
+    	if(header == null)
+    		response.addHeader(HTTP.CONTENT_LEN, String.valueOf(sink.getLength()));
+    	
+    	return response;
     }
 
     @Override

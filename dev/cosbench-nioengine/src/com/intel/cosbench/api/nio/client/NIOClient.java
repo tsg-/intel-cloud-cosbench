@@ -10,12 +10,18 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.HttpAsyncRequester;
+import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpProcessorBuilder;
@@ -26,12 +32,14 @@ import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.util.Asserts;
 
+import com.intel.cosbench.api.ioengine.IOClient;
 import com.intel.cosbench.api.nio.consumer.ConsumerFileSink;
 import com.intel.cosbench.api.nio.consumer.ZCConsumer;
 import com.intel.cosbench.api.nio.producer.BaseZCAsyncRequestProducer;
-import com.intel.cosbench.api.nio.producer.BaseZCProducer;
 import com.intel.cosbench.api.nio.producer.ProducerBufferSource;
 import com.intel.cosbench.api.nio.producer.ZCProducer;
+import com.intel.cosbench.api.stats.StatsCollector;
+import com.intel.cosbench.api.validator.ResponseValidator;
 
 
 /**
@@ -41,20 +49,45 @@ import com.intel.cosbench.api.nio.producer.ZCProducer;
  * @author ywang19
  * 
  */
-public class NIOClient {
+@SuppressWarnings({ "deprecation", "unused" })
+public class NIOClient implements IOClient {
 
 	private BasicNIOConnPool connPool;
 	private HttpAsyncRequester requester;
-//	private CountDownLatch latch;
+	
+	private final RequestThrottler throttler;
+	private ResponseValidator validator;
+	public ResponseValidator getValidator() {
+		return validator;
+	}
+
+	public void setValidator(ResponseValidator validator) {
+		this.validator = validator;
+	}
+
+	private StatsCollector collector;
+	
+	public StatsCollector getCollector() {
+		return collector;
+	}
+
+	public void setCollector(StatsCollector collector) {
+		this.collector = collector;
+	}
+
 	private COSBFutureCallback futureCallback;
 
 	private String doc_root = "c:/temp/download/";
 	
 	public NIOClient(BasicNIOConnPool connPool, int concurrency)
 	{
+		Asserts.check(connPool != null, "Connection Pool shouldn't be null");
 		Asserts.check(concurrency > 0, "concurrency must be a positive number");
+		
 		this.connPool = connPool;
-    	futureCallback =  new COSBFutureCallback(concurrency);
+		this.throttler = new RequestThrottler(concurrency);
+		this.validator = null;
+		this.collector = null;
 		
         HttpProcessor httpproc = HttpProcessorBuilder.create()
                 // Use standard client-side protocol interceptors
@@ -64,24 +97,30 @@ public class NIOClient {
                 .add(new RequestUserAgent("Mozilla/5.0"))
                 .add(new RequestExpectContinue()).build();
         
-        this.requester = new HttpAsyncRequester(httpproc);
+        HttpParams params = new SyncBasicHttpParams();
+        params
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
+            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 3000)
+            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
+            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
+            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
+            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpTest/1.1")
+        	.setParameter(CoreProtocolPNames.USER_AGENT, "AsynCore/1.1");
+//        	.setParameter(ConnRoutePNames.DEFAULT_PROXY, "http://proxy-prc.intel:com:911");
+        
+        this.requester = new HttpAsyncRequester(httpproc,
+        								new DefaultConnectionReuseStrategy(),
+        								params);
 	}
 	
 	public NIOClient(BasicNIOConnPool connPool)
 	{
-		this.connPool = connPool;
-		System.out.println("Max Conn Pool = " + connPool.getMaxTotal() + "\t Max Per Route = " + connPool.getDefaultMaxPerRoute());
-    	futureCallback =  new COSBFutureCallback(connPool.getMaxTotal());
+		this(connPool, connPool.getMaxTotal());
+	}
 		
-        HttpProcessor httpproc = HttpProcessorBuilder.create()
-                // Use standard client-side protocol interceptors
-                .add(new RequestContent())
-                .add(new RequestTargetHost())
-                .add(new RequestConnControl())
-                .add(new RequestUserAgent("Mozilla/5.0"))
-                .add(new RequestExpectContinue()).build();
-        
-        this.requester = new HttpAsyncRequester(httpproc);
+	public void init()
+	{
+		
 	}
 	
 	public void await() throws InterruptedException
@@ -111,9 +150,14 @@ public class NIOClient {
 		return request;
 	}
 	
+	public COSBFutureCallback makeFutureCallback(ExecContext context)
+	{
+		return new COSBFutureCallback(throttler, context, validator, collector);
+	}
+	
 	public void GET(HttpHost target, HttpRequest request) throws Exception {
         // Create HTTP requester
-    	long start = System.currentTimeMillis();
+//    	long start = System.currentTimeMillis();
     	
     	HttpCoreContext coreContext = HttpCoreContext.create();
     	String uri = request.getRequestLine().getUri();
@@ -123,8 +167,8 @@ public class NIOClient {
 //    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerNullSink(ByteBuffer.allocate(8192)));
    		
  		// initialize future callback.
-		futureCallback.setTarget(target);
-    	futureCallback.countUp();
+    	COSBFutureCallback futureCallback = makeFutureCallback(new ExecContext(target, request, null));
+//    	futureCallback.countUp();
         Future<HttpResponse> future = requester.execute(
                 new BasicAsyncRequestProducer(target, request),
                 consumer,
@@ -138,14 +182,14 @@ public class NIOClient {
         	
 //        future.get();
         
-        long end = System.currentTimeMillis();
-        
-        System.out.println("Elapsed Time: " + (end-start) + " ms.");
+//        long end = System.currentTimeMillis();
+//        
+//        System.out.println("Elapsed Time: " + (end-start) + " ms.");
     }
 
 	public void GET_withWait(HttpHost target, HttpRequest request) throws Exception {
         // Create HTTP requester
-    	long start = System.currentTimeMillis();
+//    	long start = System.currentTimeMillis();
     	
     	HttpCoreContext coreContext = HttpCoreContext.create();
     	String uri = request.getRequestLine().getUri();
@@ -155,8 +199,9 @@ public class NIOClient {
 //    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerNullSink(ByteBuffer.allocate(8192)));
    		
  		// initialize future callback.
-		futureCallback.setTarget(target);
-    	futureCallback.countUp();
+    	COSBFutureCallback futureCallback = makeFutureCallback(new ExecContext(target, request, null));
+//		futureCallback.setTarget(target);
+//    	futureCallback.countUp();
         Future<HttpResponse> future = requester.execute(
                 new BasicAsyncRequestProducer(target, request),
                 consumer,
@@ -170,14 +215,14 @@ public class NIOClient {
         	
         future.get();
         
-        long end = System.currentTimeMillis();
-        
-        System.out.println("Elapsed Time: " + (end-start) + " ms.");
+//        long end = System.currentTimeMillis();
+//        
+//        System.out.println("Elapsed Time: " + (end-start) + " ms.");
     }
 
 	public void PUT(HttpHost target, HttpEntityEnclosingRequest request) throws Exception {
 	
-    	long start = System.currentTimeMillis();
+//    	long start = System.currentTimeMillis();
     	
     	HttpCoreContext coreContext = HttpCoreContext.create();
     	String uri = request.getRequestLine().getUri();
@@ -204,8 +249,9 @@ public class NIOClient {
  		request.setEntity(producer.getEntity());
     	
  		// initialize future callback.
-		futureCallback.setTarget(target);
-    	futureCallback.countUp();
+ 		COSBFutureCallback futureCallback = makeFutureCallback(new ExecContext(target, request, null));
+//		futureCallback.setTarget(target);
+//    	futureCallback.countUp();
         Future<HttpResponse> future = requester.execute(
         		new BaseZCAsyncRequestProducer(target, request, producer),
                 consumer,
@@ -221,14 +267,14 @@ public class NIOClient {
         	
 //        future.get();
         
-        long end = System.currentTimeMillis();
-        
-        System.out.println("Elapsed Time: " + (end-start) + " ms.");
+//        long end = System.currentTimeMillis();
+//        
+//        System.out.println("Elapsed Time: " + (end-start) + " ms.");
     }
 	
 	public void DELETE(HttpHost target, HttpRequest request) throws Exception {
         // Create HTTP requester
-    	long start = System.currentTimeMillis();
+//    	long start = System.currentTimeMillis();
     	
     	HttpCoreContext coreContext = HttpCoreContext.create();
     	String uri = request.getRequestLine().getUri();
@@ -237,8 +283,9 @@ public class NIOClient {
     	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
    		
  		// initialize future callback.
-		futureCallback.setTarget(target);
-    	futureCallback.countUp();
+    	COSBFutureCallback futureCallback = makeFutureCallback(new ExecContext(target, request, null));
+//		futureCallback.setTarget(target);
+//    	futureCallback.countUp();
         Future<HttpResponse> future = requester.execute(
         		new BasicAsyncRequestProducer(target, request),
                 consumer,
@@ -252,10 +299,9 @@ public class NIOClient {
         	
 //        future.get();
         
-        long end = System.currentTimeMillis();
-        
-        System.out.println("Elapsed Time: " + (end-start) + " ms.");
+//        long end = System.currentTimeMillis();
+//        
+//        System.out.println("Elapsed Time: " + (end-start) + " ms.");
     }
-
 
 }

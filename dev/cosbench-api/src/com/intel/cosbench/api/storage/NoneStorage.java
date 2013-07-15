@@ -23,6 +23,9 @@ import java.io.*;
 import java.util.*;
 
 import com.intel.cosbench.api.context.*;
+import com.intel.cosbench.api.ioengine.IOEngineAPI;
+import com.intel.cosbench.api.stats.StatsCollector;
+import com.intel.cosbench.api.validator.ResponseValidator;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.Logger;
 
@@ -39,6 +42,10 @@ public class NoneStorage implements StorageAPI {
 
     protected Context parms;
     protected Logger logger;
+    
+    protected IOEngineAPI ioengine;
+    protected StatsCollector collector;
+    protected ResponseValidator validator;
 
     /* configurations */
     private boolean logging; // enable logging
@@ -46,7 +53,22 @@ public class NoneStorage implements StorageAPI {
     public NoneStorage() {
         /* empty */
     }
+    
+    @Override
+    public void initCollector(StatsCollector collector) {
+    	this.collector = collector;
+    }
 
+    @Override
+    public void initValidator(ResponseValidator validator) {
+    	this.validator = validator;
+    }
+    
+    @Override
+    public IOEngineAPI initIOEngine(IOEngineAPI ioengine) {
+    	return this.ioengine = ioengine;
+    }
+    
     @Override
     public void init(Config config, Logger logger) {
         this.logger = logger;

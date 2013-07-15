@@ -19,6 +19,7 @@ package com.intel.cosbench.driver.service;
 
 import java.util.List;
 
+import com.intel.cosbench.api.ioengine.IOEngineAPI;
 import com.intel.cosbench.api.storage.*;
 import com.intel.cosbench.config.*;
 import com.intel.cosbench.log.*;
@@ -49,8 +50,9 @@ public class COSBStorageAPIService implements StorageAPIService {
     }
 
     @Override
-    public StorageAPI getStorage(String type, Config config, Logger logger) {
+    public StorageAPI getStorage(String type, IOEngineAPI ioengine, Config config, Logger logger) {
         StorageAPI storage = createStorage(type);
+        storage.initIOEngine(ioengine);
         storage.init(config, logger);
         return storage;
     }

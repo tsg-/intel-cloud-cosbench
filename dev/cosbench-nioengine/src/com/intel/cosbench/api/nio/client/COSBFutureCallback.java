@@ -1,8 +1,13 @@
 package com.intel.cosbench.api.nio.client;
 
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.util.Asserts;
+
+import com.intel.cosbench.api.stats.BaseStatsCollector;
+import com.intel.cosbench.api.stats.StatsCollector;
+import com.intel.cosbench.api.validator.BaseResponseValidator;
+import com.intel.cosbench.api.validator.ResponseValidator;
 
 
 /**
@@ -12,48 +17,86 @@ import org.apache.http.concurrent.FutureCallback;
  *
  */
 public class COSBFutureCallback implements FutureCallback<HttpResponse> {
-	private HttpHost target;
-	private CountUpDownLatchWithLimit latch;
+	private RequestThrottler throttler;	// the throttler is to throttle request rate.
 	
-	public COSBFutureCallback(int count) {
-		this.latch = new CountUpDownLatchWithLimit(count);
+//	private HttpHost target;
+	private ExecContext context;  // data exchange for async response handling.	
+
+	private ResponseValidator validator;
+	private StatsCollector collector;
+	
+	public COSBFutureCallback(final RequestThrottler throttler) {
+		Asserts.notNull(throttler, "Request Throttler shouldn't be null.");
+		
+		this.throttler = throttler;
+		this.throttler.countUp();
+		
+		this.validator = new BaseResponseValidator();
+		this.collector = new BaseStatsCollector();		
 	}
 	
-	public COSBFutureCallback(int count, HttpHost target) {
-		this(count);
-		this.target = target;
+	public COSBFutureCallback(final RequestThrottler throttler, ExecContext context) {		
+		this(throttler);
+		this.context = context;
 	}
 	
-	public long countUp() {
-		return latch.countUp();
+	public COSBFutureCallback(final RequestThrottler throttler, ExecContext context, ResponseValidator validator) {		
+		this(throttler, context);
+		this.validator = validator;
 	}
+	
+	public COSBFutureCallback(final RequestThrottler throttler, ExecContext context, ResponseValidator validator, StatsCollector collector) {		
+		this(throttler, context, validator);
+		this.collector = collector;		
+	}
+	
+	public void setValidator(ResponseValidator validator) {
+		this.validator = validator;
+	}
+	
+	public void setCollector(StatsCollector collector) {
+		this.collector = collector;
+	}
+	
+//	public long countUp() {
+//		return throttler.countUp();
+//	}
 	
 	public long countDown() {
-		return latch.countDown();
+		return throttler.countDown();
 	}
 	
 	public void await() throws InterruptedException {
-		if(latch != null)
-			latch.await();
+		if(throttler != null)
+			throttler.await();
 	}
-	
-	public void setTarget(HttpHost target) {
-		this.target = target;
-	}
-	
-    public void completed(final HttpResponse response) {
-//    	long ql = latch.countDown();
-        System.out.println("SUCCEED: " + target + "->" + response.getStatusLine() + "\t Outstanding Request is " + latch.countDown());
+
+	@Override
+    public void completed(final HttpResponse response) {    
+		context.response = response;
+		
+        System.out.println("COMPLETED: " + context.getUri() + "->" + response.getStatusLine() + "\t Outstanding Request is " + countDown());
+    	
+        boolean status = false;
+    	try {
+    		status = validator.validate(response, context);
+    	}catch(Throwable e) {
+    		System.out.println("Response can't pass validation with exception: " + e.getMessage());
+    		e.printStackTrace();
+    	}finally {
+    		collector.onStats(context, status);    	
+    	}
     }
 
+	@Override
     public void failed(final Exception ex) {
-//    	latch.countDown();
-        System.out.println("FAILED: " + target + "->" + ex + "\t Outstanding Request is " + latch.countDown());
+        System.out.println("FAILED: " + context.getUri() + "->" + ex + "\t Outstanding Request is " + throttler.countDown());
+        ex.printStackTrace();
     }
 
+	@Override
     public void cancelled() {
-//    	latch.countDown();
-        System.out.println("CANCELLED: " + target + " cancelled" + "\t Outstanding Request is " + latch.countDown());
+        System.out.println("CANCELLED: " + context.getUri() + " cancelled" + "\t Outstanding Request is " + throttler.countDown());
     }
     
 }

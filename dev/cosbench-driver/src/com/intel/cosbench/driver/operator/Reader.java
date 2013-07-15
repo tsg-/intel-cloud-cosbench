@@ -65,10 +65,10 @@ class Reader extends AbstractOperator {
         String[] path = objPicker.pickObjPath(session.getRandom(), idx, all);
         NullOutputStream out = new NullOutputStream();
         Sample sample = doRead(out, path[0], path[1], config, session);
-        session.getListener().onSampleCreated(sample);
-        Date now = sample.getTimestamp();
-        Result result = new Result(now, OP_TYPE, sample.isSucc());
-        session.getListener().onOperationCompleted(result);
+//        session.getStats().onSampleCreated(sample);
+//        Date now = sample.getTimestamp();
+//        Result result = new Result(now, OP_TYPE, sample.isSucc());
+//        session.getStats().onOperationCompleted(result);
     }
 
     private Sample doRead(OutputStream out, String conName, String objName,

@@ -76,6 +76,11 @@ public class ConsumerFileSink extends ConsumerSink<File> {
 	}
 	
 	@Override
+	public long getLength() {
+		return this.idx;
+	}
+	
+	@Override
 	public ContentType getContentType() {
 		return this.contentType;
 	}

@@ -8,6 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.intel.cosbench.driver.util
 Import-Package: com.intel.cosbench.api.auth,
  com.intel.cosbench.api.context,
+ com.intel.cosbench.api.stats,
  com.intel.cosbench.api.storage,
  com.intel.cosbench.api.ioengine,
  com.intel.cosbench.bench,

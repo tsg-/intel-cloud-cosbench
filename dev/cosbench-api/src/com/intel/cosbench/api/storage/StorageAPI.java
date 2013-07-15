@@ -20,11 +20,29 @@ package com.intel.cosbench.api.storage;
 import java.io.InputStream;
 
 import com.intel.cosbench.api.context.*;
+import com.intel.cosbench.api.ioengine.IOEngineAPI;
+import com.intel.cosbench.api.stats.StatsCollector;
+import com.intel.cosbench.api.validator.ResponseValidator;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.Logger;
 
 public interface StorageAPI {
 
+	/**
+	 * 
+	 */
+	public void initCollector(StatsCollector collector);
+	
+	/**
+	 * 
+	 */
+	public void initValidator(ResponseValidator validator);
+	
+	/**
+	 * Initializes a <code>IOEngine-API</code>.
+	 */
+	public IOEngineAPI initIOEngine(IOEngineAPI ioengine);
+	
     /**
      * Initializes a <code>Storage-API</code> with parameters contained in the
      * given <code>config</code>, whose content depends on the specific storage

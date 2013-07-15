@@ -168,15 +168,20 @@ class MissionHandler {
     private void initIOEngine() {
         LogManager manager = missionContext.getLogManager();
         Mission mission = missionContext.getMission();
-    	ioengine = createIOEngineApi(mission.getIoengine(), manager);
-
-    	ioengine.startup();
-    	
+        if(ioengine == null)
+        {
+	    	ioengine = createIOEngineApi(mission.getIoengine(), manager);
+	
+	    	ioengine.startup();
+        }
+        
     	LOGGER.info("I/O Engine is initialized!");
     }
     
     private void finiIOEngine() {
     	ioengine.shutdown();
+    	
+    	LOGGER.info("I/O Engine is shutdown!");
     }
     
     private void createWorkers() {
@@ -216,7 +221,7 @@ class MissionHandler {
     private StorageAPI createStorageApi(Storage storage, LogManager manager) {
         String type = storage.getType();
         Logger logger = manager.getLogger();
-        return storageAPIs.getStorage(type, storageConfig, logger);
+        return storageAPIs.getStorage(type, ioengine, storageConfig, logger);
     }
 
     private void createExecutor() {
@@ -356,6 +361,7 @@ class MissionHandler {
                     "mission should be in the state of finished");
         String id = missionContext.getId();
         missionContext.setState(ACCOMPLISHED);
+        finiIOEngine();
         LOGGER.info("mission {} has been closed successfully", id);
     }
 
@@ -374,6 +380,7 @@ class MissionHandler {
             return; // do nothing -- it is already stopped
         }
         missionContext.setState(ABORTED); // abort it directly
+        finiIOEngine();
         LOGGER.info("mission {} has been aborted successfully", id);
     }
 

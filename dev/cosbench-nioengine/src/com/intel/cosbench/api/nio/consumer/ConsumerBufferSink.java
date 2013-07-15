@@ -53,4 +53,9 @@ public class ConsumerBufferSink extends ConsumerSink<ByteBuffer> {
 	public ByteBuffer getSink() {
 		return this.sink;
 	}
+	
+	@Override
+	public long getLength() {
+		return this.idx;
+	}
 }

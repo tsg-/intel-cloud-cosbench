@@ -17,9 +17,6 @@ limitations under the License.
 
 package com.intel.cosbench.driver.model;
 
-import com.intel.cosbench.log.LogFactory;
-import com.intel.cosbench.log.LogManager;
-import com.intel.cosbench.log.Logger;
 import com.intel.cosbench.model.DriverInfo;
 
 /**

@@ -36,6 +36,7 @@ import com.intel.cosbench.log.Logger;
 //import com.intel.cosbench.api.client.NIOClient;
 import com.intel.cosbench.api.context.*;
 import com.intel.cosbench.api.ioengine.*;
+import com.intel.cosbench.api.nio.client.NIOClient;
 
 
 /**
@@ -87,6 +88,16 @@ public class NIOEngine extends NoneIOEngine {
     public NIOEngine() {
     }
 
+    @Override
+	public NIOClient newClient() {
+    	return new NIOClient(getConnPool());
+    }
+    
+    public NIOClient newClient(int concurrency) {
+    	return new NIOClient(getConnPool(), concurrency);
+    }
+    
+    
     
     @Override
     public boolean init(Config config, Logger logger) {

@@ -18,6 +18,7 @@ abstract class ConsumerSink<T> {
     protected ContentType contentType;
     protected T sink;
     
+    abstract long getLength();
     
 	abstract void disconnect() throws IOException;
 	

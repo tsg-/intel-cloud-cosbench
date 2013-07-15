@@ -36,7 +36,7 @@ public class NoneIOEngine implements IOEngineAPI {
 
     protected Context parms;
     protected Logger logger;
-
+    
     /* configurations */
     private boolean logging; // enable logging
 
@@ -44,6 +44,11 @@ public class NoneIOEngine implements IOEngineAPI {
         /* empty */
     }
 
+    @Override
+	public IOClient newClient() {
+    	return null;
+    }
+    
     @Override
     public boolean init(Config config, Logger logger) {
         this.logger = logger;

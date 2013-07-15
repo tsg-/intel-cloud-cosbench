@@ -23,10 +23,10 @@ import org.apache.commons.lang.math.RandomUtils;
 
 import com.intel.cosbench.api.auth.AuthAPI;
 import com.intel.cosbench.api.ioengine.IOEngineAPI;
+import com.intel.cosbench.api.stats.StatsCollector;
 import com.intel.cosbench.api.storage.StorageAPI;
 import com.intel.cosbench.bench.*;
 import com.intel.cosbench.config.Mission;
-import com.intel.cosbench.driver.agent.WorkAgent;
 import com.intel.cosbench.log.Logger;
 import com.intel.cosbench.model.WorkerInfo;
 
@@ -55,20 +55,13 @@ public class WorkerContext implements WorkerInfo {
     private transient Random random = new Random(RandomUtils.nextLong());
     /* Each worker has its private required version */
     private volatile int version = 0;
-    
-    private WorkAgent workAgent;
+    private int runlen = 0;
+
+    private StatsCollector collector;
     
     public WorkerContext() {
         /* empty */
     }
-
-	public void setWorkAgent(WorkAgent workAgent) {
-		this.workAgent = workAgent;
-	}
-
-	public WorkAgent getWorkAgent() {
-		return this.workAgent;
-	}
     
     @Override
     public int getIndex() {
@@ -117,6 +110,7 @@ public class WorkerContext implements WorkerInfo {
 
     public void setStorageApi(StorageAPI storageApi) {
         this.storageApi = storageApi;
+        this.storageApi.initCollector(this.collector);
     }
 
     public boolean isError() {
@@ -137,8 +131,43 @@ public class WorkerContext implements WorkerInfo {
 
     @Override
     public Snapshot getSnapshot() {
-		workAgent.doSnapshot();
-		return this.snapshot;
+//		if(workAgent != null)
+//			workAgent.doSnapshot();
+//		return this.snapshot;
+    	if(snapshot.getVersion() < version)
+    	{
+    		logger.debug("Worker[{}] : blank snapshot is generated.", index);
+    		Snapshot blankSnapshot = new Snapshot();
+
+    		blankSnapshot.setVersion(version);
+    		blankSnapshot.setMinVersion(version);
+    		blankSnapshot.setMaxVersion(version);
+    		
+    		version++;
+    		runlen++;
+    		
+    		return blankSnapshot;
+    	}
+    
+    	// align snapshot metrics to compensate the under-counting due to blank snapshots.
+    	if(runlen > 0)
+    	{
+	    	Report report = snapshot.getReport();
+	    	Metrics[] metrics = report.getAllMetrics();
+	
+	    	for(int i=0; i<metrics.length; i++)
+	    	{
+	    		logger.debug("Worker[{}] : ratio={}", index, runlen+1);
+	    		metrics[i].setThroughput(metrics[i].getThroughput()*(runlen+1));
+	    		metrics[i].setBandwidth(metrics[i].getBandwidth()*(runlen+1));
+	    	}
+	    	
+	    	runlen = 0;
+    	}
+    	
+    	version++;
+    	
+    	return snapshot;
     }
 
     public void setSnapshot(Snapshot snapshot) {
@@ -172,5 +201,9 @@ public class WorkerContext implements WorkerInfo {
         snapshot = new Snapshot();
         logger = null;
     }
+
+	public void setStatsCollector(StatsCollector collector) {
+		this.collector = collector;
+	}
 
 }

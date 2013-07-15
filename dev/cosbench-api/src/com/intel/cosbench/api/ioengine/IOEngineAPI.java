@@ -22,15 +22,21 @@ import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.Logger;
 
 public interface IOEngineAPI {
-
+	
+	/**
+	 * Create new I/O client for future storage operations.
+	 * 
+	 */
+	public IOClient newClient(); 
+	
     /**
      * Initializes an <code>IOEngine-API</code> with parameters contained in the
      * given <code>config</code>, whose content depends on the specific IOEngine
-     * type. Normally, it will also initialize one client for IOEngineentication.
+     * type. Normally, it will also initialize one client for IOEngine.
      * 
      * @param config
      *            - one instance from com.intel.cosbench.config.Config, which
-     *            includes parameters for IOEngineentication, and it will be passed
+     *            includes parameters for IOEngine, and it will be passed
      *            from execution engine.
      * @param logger
      *            - one instance from com.intel.cosbench.log.Logger, which
@@ -40,19 +46,19 @@ public interface IOEngineAPI {
     public boolean init(Config config, Logger logger);
 
     /**
-     * Triggers the back-end IOEngineentication mechanism.
+     * Triggers the back-end IOEngine mechanism.
      * 
      * @return IOEngineContext - one com.intel.cosbench.context.IOEngineContext instance which contains all parameters
-     *         configured for the IOEngineentication mechanism if IOEngineentication is successful, and otherwise, an 
+     *         configured for the IOEngine mechanism if IOEngine is successful, and otherwise, an 
      *         exception will be raised.
      */
     public IOEngineContext startup() throws IOEngineException;
     
     /**
-     * Triggers the back-end IOEngineentication mechanism.
+     * Triggers the back-end IOEngine mechanism.
      * 
      * @return IOEngineContext - one com.intel.cosbench.context.IOEngineContext instance which contains all parameters
-     *         configured for the IOEngineentication mechanism if IOEngineentication is successful, and otherwise, an 
+     *         configured for the IOEngine mechanism if IOEngine is successful, and otherwise, an 
      *         exception will be raised.
      */
     public boolean shutdown() throws IOEngineException;
@@ -61,7 +67,7 @@ public interface IOEngineAPI {
      * Retrieves parameters and current settings used by the IOEngine-API.
      * 
      * @return Context - one com.intel.cosbenchc.context.Context instance which contains all parameters
-     *         configured for the IOEngineentication mechanism.
+     *         configured for the IOEngine mechanism.
      */
     public Context getParms();
 
