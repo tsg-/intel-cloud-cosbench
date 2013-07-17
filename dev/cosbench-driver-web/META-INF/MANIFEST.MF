@@ -34,3 +34,4 @@ Import-Package: com.intel.cosbench.bench,
  org.springframework.web.servlet.mvc;version="[3.0.0,4.0.0)",
  org.springframework.web.servlet.view;version="[3.0.0,4.0.0)",
  org.springframework.web.servlet.view.freemarker;version="[3.0.0,4.0.0)"
+require-bundle: org.apache.httpcomponents.httpclient

@@ -31,6 +31,7 @@ import com.intel.cosbench.api.validator.*;
 import com.intel.cosbench.api.nio.client.NIOClient;
 import com.intel.cosbench.api.context.AuthContext;
 import com.intel.cosbench.api.nio.engine.NIOEngine;
+import com.intel.cosbench.api.stats.BaseStatsCollector;
 import com.intel.cosbench.api.stats.StatsCollector;
 import com.intel.cosbench.api.storage.*;
 //import com.intel.cosbench.client.http.HttpClientUtil;
@@ -65,8 +66,8 @@ class SwiftNioStorage extends NoneStorage {
     public void init(Config config, Logger logger) {
         super.init(config, logger);
         
-        timeout = config.getInt(CONN_TIMEOUT_KEY, CONN_TIMEOUT_DEFAULT);
-        parms.put(CONN_TIMEOUT_KEY, timeout);
+//        timeout = config.getInt(CONN_TIMEOUT_KEY, CONN_TIMEOUT_DEFAULT);
+//        parms.put(CONN_TIMEOUT_KEY, timeout);
         logger.debug("using storage config: {}", parms);
 
         if(ioengine != null) {
@@ -77,6 +78,20 @@ class SwiftNioStorage extends NoneStorage {
             logger.error("swift i/o engine is not correctly initialized, please check it first.");
         }
 
+    }
+    
+    @Override
+    public void initCollector(StatsCollector collector) {
+    	this.collector = collector;
+		if(nioclient != null)
+			nioclient.setCollector(collector);
+    }
+
+    @Override
+    public void initValidator(ResponseValidator validator) {
+    	this.validator = validator;
+		if(nioclient != null)
+			nioclient.setValidator(validator);
     }
     
 	public void setValidator(ResponseValidator validator) {
@@ -92,14 +107,15 @@ class SwiftNioStorage extends NoneStorage {
 	@Override
     public void setAuthContext(AuthContext info) {
         super.setAuthContext(info);
-//        authToken = info.getStr(AUTH_TOKEN_KEY);
-//        storageURL = info.getStr(STORAGE_URL_KEY);
+//        authToken = info.getStr(AUTH_TOKEN_KEY, AUTH_TOKEN_DEFAULT);
+//        storageURL = info.getStr(STORAGE_URL_KEY, STORAGE_URL_DEFAULT);
+    	
 //        try {
 //            client.init(authToken, storageURL);
 //        } catch (Exception e) {
 //            throw new StorageException(e);
 //        }
-        logger.debug("using auth token: {}, storage url: {}", authToken, storageURL);
+//        logger.debug("using auth token: {}, storage url: {}", authToken, storageURL);
     }
 
     @Override
@@ -124,9 +140,12 @@ class SwiftNioStorage extends NoneStorage {
     	ioengine.init(null,logger);
     	ioengine.startup();
     	
+    	
     	NIOClient ioclient = ioengine.newClient();
     	
     	SwiftNioStorage storage = new SwiftNioStorage();
+    	storage.initIOEngine(ioengine);
+    	storage.init(null, logger);
     	
     	try
     	{
@@ -178,6 +197,12 @@ class SwiftNioStorage extends NoneStorage {
             // issue request.
     		HttpHost target = new HttpHost("127.0.0.1", 8080, "http");
 
+    		if(nioclient == null)
+    		{
+    			System.err.println("nio client is not initialized yet!");
+    			return null;
+    		}
+    		
             nioclient.GET(target, method);
             
             // check response.

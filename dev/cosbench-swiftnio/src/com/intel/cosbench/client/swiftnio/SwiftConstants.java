@@ -38,8 +38,10 @@ public interface SwiftConstants {
     // --------------------------------------------------------------------------
 
     String AUTH_TOKEN_KEY = "token";
-
+    String AUTH_TOKEN_DEFAULT = "none";
+    
     String STORAGE_URL_KEY = "storage_url";
+    String STORAGE_URL_DEFAULT = "http://127.0.0.1:8080/";
 
     // --------------------------------------------------------------------------
     // Swift RESTful API

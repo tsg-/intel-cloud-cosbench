@@ -32,13 +32,16 @@ import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.util.Asserts;
 
+import com.intel.cosbench.api.context.ExecContext;
 import com.intel.cosbench.api.ioengine.IOClient;
 import com.intel.cosbench.api.nio.consumer.ConsumerFileSink;
 import com.intel.cosbench.api.nio.consumer.ZCConsumer;
 import com.intel.cosbench.api.nio.producer.BaseZCAsyncRequestProducer;
 import com.intel.cosbench.api.nio.producer.ProducerBufferSource;
 import com.intel.cosbench.api.nio.producer.ZCProducer;
+import com.intel.cosbench.api.stats.BaseStatsCollector;
 import com.intel.cosbench.api.stats.StatsCollector;
+import com.intel.cosbench.api.validator.BaseResponseValidator;
 import com.intel.cosbench.api.validator.ResponseValidator;
 
 
@@ -75,7 +78,7 @@ public class NIOClient implements IOClient {
 		this.collector = collector;
 	}
 
-	private COSBFutureCallback futureCallback;
+//	private COSBFutureCallback futureCallback;
 
 	private String doc_root = "c:/temp/download/";
 	
@@ -86,8 +89,8 @@ public class NIOClient implements IOClient {
 		
 		this.connPool = connPool;
 		this.throttler = new RequestThrottler(concurrency);
-		this.validator = null;
-		this.collector = null;
+		this.validator = new BaseResponseValidator();
+		this.collector = new BaseStatsCollector();
 		
         HttpProcessor httpproc = HttpProcessorBuilder.create()
                 // Use standard client-side protocol interceptors
@@ -118,15 +121,10 @@ public class NIOClient implements IOClient {
 		this(connPool, connPool.getMaxTotal());
 	}
 		
-	public void init()
-	{
-		
-	}
-	
 	public void await() throws InterruptedException
 	{
-		if(futureCallback != null)
-			futureCallback.await();
+		if(throttler != null)
+			throttler.await();
 	}
 	
 	public BasicHttpRequest makeHttpGet(String path)
@@ -159,6 +157,7 @@ public class NIOClient implements IOClient {
         // Create HTTP requester
 //    	long start = System.currentTimeMillis();
     	
+		System.out.println("INSIDE NIOEngine: Get Object");
     	HttpCoreContext coreContext = HttpCoreContext.create();
     	String uri = request.getRequestLine().getUri();
     	String down_path = doc_root + "/" + uri;
@@ -303,5 +302,11 @@ public class NIOClient implements IOClient {
 //        
 //        System.out.println("Elapsed Time: " + (end-start) + " ms.");
     }
+
+	@Override
+	public void init(ResponseValidator validator, StatsCollector collector) {
+		this.validator = validator;
+		this.collector = collector;
+	}
 
 }

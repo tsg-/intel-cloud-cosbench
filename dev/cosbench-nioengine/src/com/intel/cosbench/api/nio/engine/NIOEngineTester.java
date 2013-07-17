@@ -153,17 +153,27 @@ public class NIOEngineTester {
             }    	
 	}
 	
+	public void pause(long ms) {
+		try {
+			Thread.sleep(ms);
+		}catch(InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 	
     public static void main(String[] args)
     {
     	NIOEngineTester tester = new NIOEngineTester();
     	tester.init();
     	
-//    	tester.testGET();
+    	tester.testGET();
     	
-    	tester.testPUT();
+//    	tester.testPUT();
 //    	
 //    	tester.testDELETE();
+    	
+    	tester.pause(1000);
+    	
     	
     	tester.fini();
     	

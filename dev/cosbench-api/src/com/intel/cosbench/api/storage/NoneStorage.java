@@ -48,7 +48,7 @@ public class NoneStorage implements StorageAPI {
     protected ResponseValidator validator;
 
     /* configurations */
-    private boolean logging; // enable logging
+    private boolean logging = false; // enable logging
 
     public NoneStorage() {
         /* empty */
@@ -74,7 +74,8 @@ public class NoneStorage implements StorageAPI {
         this.logger = logger;
         this.parms = new Context();
 		
-        logging = config.getBoolean(LOGGING_KEY, LOGGING_DEFAULT);
+        if(config != null)
+        	logging = config.getBoolean(LOGGING_KEY, LOGGING_DEFAULT);
         /* register all parameters */
         parms.put(LOGGING_KEY, logging);
     }

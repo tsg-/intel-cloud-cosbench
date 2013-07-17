@@ -36,7 +36,7 @@ import com.intel.cosbench.service.AbortedException;
  * @author ywang19, qzheng7
  * 
  */
-class Reader extends AbstractOperator {
+public class Reader extends AbstractOperator {
 
     public static final String OP_TYPE = "read";
 
@@ -90,6 +90,8 @@ class Reader extends AbstractOperator {
         } catch (StorageInterruptedException sie) {
             throw new AbortedException();
         } catch (Exception e) {
+        	System.out.println("Unknown exception: ");
+        	e.printStackTrace();
             doLogErr(session.getLogger(), "fail to perform read operation", e);
             return new Sample(new Date(), OP_TYPE, false);
         } finally {

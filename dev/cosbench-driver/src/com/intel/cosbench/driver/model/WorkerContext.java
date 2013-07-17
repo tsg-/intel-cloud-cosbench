@@ -110,7 +110,6 @@ public class WorkerContext implements WorkerInfo {
 
     public void setStorageApi(StorageAPI storageApi) {
         this.storageApi = storageApi;
-        this.storageApi.initCollector(this.collector);
     }
 
     public boolean isError() {
@@ -204,6 +203,7 @@ public class WorkerContext implements WorkerInfo {
 
 	public void setStatsCollector(StatsCollector collector) {
 		this.collector = collector;
+        this.storageApi.initCollector(this.collector);
 	}
 
 }

@@ -3,9 +3,11 @@ package com.intel.cosbench.driver.agent;
 import static com.intel.cosbench.bench.Mark.getMarkType;
 import static com.intel.cosbench.bench.Mark.newMark;
 
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.intel.cosbench.api.context.ExecContext;
 import com.intel.cosbench.api.context.StatsContext;
 import com.intel.cosbench.api.stats.StatsCollector;
 import com.intel.cosbench.bench.Mark;
@@ -20,6 +22,7 @@ import com.intel.cosbench.driver.model.OperatorContext;
 import com.intel.cosbench.driver.model.OperatorRegistry;
 import com.intel.cosbench.driver.model.WorkerContext;
 import com.intel.cosbench.driver.operator.OperationListener;
+import com.intel.cosbench.driver.operator.*;
 
 
 public class WorkStats extends StatsCollector implements OperationListener {
@@ -203,9 +206,25 @@ public class WorkStats extends StatsCollector implements OperationListener {
 
 	@Override
 	public void onStats(StatsContext context, boolean status) {
-		System.out.println("Request is " + (status? "succeed" : "failed"));
+		
+		if(context instanceof ExecContext)
+		{
+			ExecContext exCtx = (ExecContext)context;
+			long duration = System.currentTimeMillis() - exCtx.timestamp;
+			Sample sample = new Sample(new Date(), Reader.OP_TYPE, status, duration, exCtx.getLength());
+			System.out.println("Request is " + (status? "succeed" : "failed") + " in " + duration + " milliseconds.");
+		
+			onSampleCreated(sample);
+			
+			if(!exCtx.composited) {
+		        Date now = sample.getTimestamp();
+		        Result result = new Result(now, Reader.OP_TYPE, sample.isSucc());
+				onOperationCompleted(result);
+			}
+		}
+		
+	
 //		this.ts_end = System.currentTimeMillis();
-//		System.out.println("Request is " + (status? "succeed" : "failed") + " in " + (ts_end - ts_start) + " milliseconds.");
 //	
 //        String type = getMarkType(sample.getOpType(), sample.getSampleType());
 //        currMarks.getMark(type).addToSamples(sample);

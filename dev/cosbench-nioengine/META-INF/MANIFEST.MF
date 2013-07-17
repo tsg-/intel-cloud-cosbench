@@ -10,9 +10,6 @@ Export-Package: com.intel.cosbench.api.nio.client,
  com.intel.cosbench.api.nio.engine,
  com.intel.cosbench.api.nio.producer,
  com.intel.cosbench.api.nio.util
-Bundle-ClassPath: .,
- org.apache.httpcomponents.httpclient_4.3-beta2.jar,
- org.apache.httpcomponents.httpcore_4.3-beta2.jar
 Import-Package: com.intel.cosbench.api.context,
  com.intel.cosbench.api.ioengine,
  com.intel.cosbench.api.nio.engine,
@@ -23,3 +20,7 @@ Import-Package: com.intel.cosbench.api.context,
  org.apache.commons.collections,
  org.apache.commons.io.input;version="1.4.0",
  org.apache.commons.lang.math;version="2.5.0"
+Require-Bundle: org.apache.httpcomponents.httpcore,
+ org.apache.httpcomponents.httpclient
+
+

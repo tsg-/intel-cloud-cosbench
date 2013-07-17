@@ -1,4 +1,4 @@
-package com.intel.cosbench.api.nio.client;
+package com.intel.cosbench.api.context;
 
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -6,15 +6,17 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HTTP;
 
-import com.intel.cosbench.api.context.StatsContext;
 
 public class ExecContext implements StatsContext {
+	public long timestamp;
 	public HttpHost target;
 	public HttpRequest request;
 	public HttpResponse response;
+	public boolean composited;
 //	public long size;
 	
 	public ExecContext(final HttpHost target,final HttpRequest request,final HttpResponse response) {
+		this.timestamp = System.currentTimeMillis();
 		this.target = target;
 		this.request = request;
 		this.response = response;

@@ -4,6 +4,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.util.Asserts;
 
+import com.intel.cosbench.api.context.ExecContext;
 import com.intel.cosbench.api.stats.BaseStatsCollector;
 import com.intel.cosbench.api.stats.StatsCollector;
 import com.intel.cosbench.api.validator.BaseResponseValidator;
@@ -30,9 +31,6 @@ public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 		
 		this.throttler = throttler;
 		this.throttler.countUp();
-		
-		this.validator = new BaseResponseValidator();
-		this.collector = new BaseStatsCollector();		
 	}
 	
 	public COSBFutureCallback(final RequestThrottler throttler, ExecContext context) {		
@@ -66,14 +64,15 @@ public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 		return throttler.countDown();
 	}
 	
-	public void await() throws InterruptedException {
-		if(throttler != null)
-			throttler.await();
-	}
+//	public void await() throws InterruptedException {
+//		if(throttler != null)
+//			throttler.await();
+//	}
 
 	@Override
     public void completed(final HttpResponse response) {    
 		context.response = response;
+		System.out.println("FutureCallback: " + this);
 		
         System.out.println("COMPLETED: " + context.getUri() + "->" + response.getStatusLine() + "\t Outstanding Request is " + countDown());
     	
@@ -90,8 +89,9 @@ public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 
 	@Override
     public void failed(final Exception ex) {
-        System.out.println("FAILED: " + context.getUri() + "->" + ex + "\t Outstanding Request is " + throttler.countDown());
-        ex.printStackTrace();
+        System.out.println("FAILED: " + context.getUri() + "->" + ex.getMessage() + "\t Outstanding Request is " + throttler.countDown());
+//        ex.printStackTrace();
+   		collector.onStats(context, false);  
     }
 
 	@Override
