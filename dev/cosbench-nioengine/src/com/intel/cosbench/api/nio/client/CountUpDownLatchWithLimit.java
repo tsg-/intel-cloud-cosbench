@@ -21,20 +21,21 @@ public class CountUpDownLatchWithLimit {
     }
 
     public void await() throws InterruptedException {
-        if (isEmpty()) {
+        if (getActiveCount() < 0) {
             return;
         }
 
         latch.await();
     }
     
-    private boolean isEmpty() {
-    	return sem.availablePermits() == limit;
-    }
+//    private boolean isEmpty() {
+//    	return sem.availablePermits() == limit;
+//    }
     
     public long countDown() {
     	sem.release();
-        if(isEmpty()) {
+
+    	if(getActiveCount() <= 0) {
             latch.countDown();
         }
         

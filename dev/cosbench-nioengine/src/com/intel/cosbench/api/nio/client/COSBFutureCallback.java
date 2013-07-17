@@ -5,9 +5,7 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.util.Asserts;
 
 import com.intel.cosbench.api.context.ExecContext;
-import com.intel.cosbench.api.stats.BaseStatsCollector;
 import com.intel.cosbench.api.stats.StatsCollector;
-import com.intel.cosbench.api.validator.BaseResponseValidator;
 import com.intel.cosbench.api.validator.ResponseValidator;
 
 
@@ -89,14 +87,14 @@ public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 
 	@Override
     public void failed(final Exception ex) {
-        System.out.println("FAILED: " + context.getUri() + "->" + ex.getMessage() + "\t Outstanding Request is " + throttler.countDown());
+        System.out.println("FAILED: " + context.getUri() + "->" + ex.getMessage() + "\t Outstanding Request is " + countDown());
 //        ex.printStackTrace();
    		collector.onStats(context, false);  
     }
 
 	@Override
     public void cancelled() {
-        System.out.println("CANCELLED: " + context.getUri() + " cancelled" + "\t Outstanding Request is " + throttler.countDown());
+        System.out.println("CANCELLED: " + context.getUri() + " cancelled" + "\t Outstanding Request is " + countDown());
     }
     
 }

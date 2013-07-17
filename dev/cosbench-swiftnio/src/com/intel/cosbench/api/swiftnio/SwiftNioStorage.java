@@ -190,7 +190,8 @@ class SwiftNioStorage extends NoneStorage {
         try {              	
         	// construct request.
 //            method = nioclient.makeHttpGet("/" + container + "/" + object);
-          method = nioclient.makeHttpGet("/128KB/1.txt");
+        	
+          method = nioclient.makeHttpGet("/" + container + "/" + object);
 
 //        	method.setHeader(X_AUTH_TOKEN, authToken);           
             

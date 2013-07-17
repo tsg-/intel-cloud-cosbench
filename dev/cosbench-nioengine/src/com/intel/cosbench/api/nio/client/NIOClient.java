@@ -79,7 +79,6 @@ public class NIOClient implements IOClient {
 	}
 
 //	private COSBFutureCallback futureCallback;
-
 	private String doc_root = "c:/temp/download/";
 	
 	public NIOClient(BasicNIOConnPool connPool, int concurrency)

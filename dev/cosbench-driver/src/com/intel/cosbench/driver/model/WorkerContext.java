@@ -23,10 +23,11 @@ import org.apache.commons.lang.math.RandomUtils;
 
 import com.intel.cosbench.api.auth.AuthAPI;
 import com.intel.cosbench.api.ioengine.IOEngineAPI;
-import com.intel.cosbench.api.stats.StatsCollector;
 import com.intel.cosbench.api.storage.StorageAPI;
 import com.intel.cosbench.bench.*;
 import com.intel.cosbench.config.Mission;
+import com.intel.cosbench.driver.operator.OperationListener;
+import com.intel.cosbench.driver.operator.Session;
 import com.intel.cosbench.log.Logger;
 import com.intel.cosbench.model.WorkerInfo;
 
@@ -36,7 +37,7 @@ import com.intel.cosbench.model.WorkerInfo;
  * @author ywang19, qzheng7
  * 
  */
-public class WorkerContext implements WorkerInfo {
+public class WorkerContext implements WorkerInfo, Session {
 
     private int index;
     private Mission mission;
@@ -48,19 +49,29 @@ public class WorkerContext implements WorkerInfo {
     private volatile boolean error = false;
     private volatile boolean aborted = false;
     /* Each worker starts with an empty snapshot */
-    private transient volatile Snapshot snapshot = new Snapshot();
+//    private transient volatile Snapshot snapshot = new Snapshot();
     /* Each worker starts with an empty report */
     private volatile Report report = new Report();
     /* Each worker has its private random object so as to enhance performance */
     private transient Random random = new Random(RandomUtils.nextLong());
     /* Each worker has its private required version */
-    private volatile int version = 0;
-    private int runlen = 0;
+//    private volatile int version = 0;
 
-    private StatsCollector collector;
+//    private StatsCollector collector;
+    private WorkStats stats = new WorkStats(this);
     
     public WorkerContext() {
         /* empty */
+    	stats = new WorkStats(this);
+
+    }
+    
+    public void init() {
+        storageApi.initCollector(stats);
+        
+        stats.initTimes();
+        stats.initLimites();
+        stats.initMarks();
     }
     
     @Override
@@ -72,6 +83,24 @@ public class WorkerContext implements WorkerInfo {
         this.index = index;
     }
 
+    @Override
+    public WorkStats getStats() {
+        return stats;
+    }
+    
+    @Override
+    public OperationListener getListener() {
+    	return stats;
+    }
+    
+    public long getTimeout() {
+    	return stats.getTimeout();
+    }
+    
+    public boolean isFinished() {
+    	return stats.isFinished();
+    }
+    
     public Mission getMission() {
         return mission;
     }
@@ -130,9 +159,9 @@ public class WorkerContext implements WorkerInfo {
 
     @Override
     public Snapshot getSnapshot() {
-//		if(workAgent != null)
-//			workAgent.doSnapshot();
-//		return this.snapshot;
+    	return stats.doSnapshot();
+		
+		/*
     	if(snapshot.getVersion() < version)
     	{
     		logger.debug("Worker[{}] : blank snapshot is generated.", index);
@@ -167,15 +196,18 @@ public class WorkerContext implements WorkerInfo {
     	version++;
     	
     	return snapshot;
+    	*/
     }
 
-    public void setSnapshot(Snapshot snapshot) {
-    	this.snapshot = snapshot;
-
-    	this.snapshot.setVersion(++version);
-    	this.snapshot.setMinVersion(++version);
-    	this.snapshot.setMaxVersion(++version);
-    }
+//    void setSnapshot(Snapshot snapshot) {
+//    	synchronized(this.snapshot) {
+//	    	this.snapshot = snapshot;
+//	
+//	    	this.snapshot.setVersion(++version);
+//	    	this.snapshot.setMinVersion(++version);
+//	    	this.snapshot.setMaxVersion(++version);
+//    	}
+//    }
 
     @Override
     public Report getReport() {
@@ -186,6 +218,7 @@ public class WorkerContext implements WorkerInfo {
         this.report = report;
     }
 
+    @Override
     public Random getRandom() {
         return random;
     }
@@ -197,13 +230,27 @@ public class WorkerContext implements WorkerInfo {
         storageApi.dispose();
         storageApi = null;
         random = null;
-        snapshot = new Snapshot();
+//        snapshot = new Snapshot();
         logger = null;
     }
 
-	public void setStatsCollector(StatsCollector collector) {
-		this.collector = collector;
-        this.storageApi.initCollector(this.collector);
+//	public void setStatsCollector(StatsCollector collector) {
+//		this.collector = collector;
+//        this.storageApi.initCollector(this.collector);
+//	}
+
+	@Override
+	public int getTotalWorkers() {
+		return getMission().getTotalWorkers();
+	}
+
+	@Override
+	public StorageAPI getApi() {
+		return storageApi;
+	}
+
+	public void setOperatorRegistry(OperatorRegistry operatorRegistry) {
+		stats.setOperatorRegistry(operatorRegistry);
 	}
 
 }

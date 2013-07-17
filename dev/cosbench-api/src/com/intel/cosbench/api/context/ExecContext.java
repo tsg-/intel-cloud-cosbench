@@ -13,6 +13,7 @@ public class ExecContext implements StatsContext {
 	public HttpRequest request;
 	public HttpResponse response;
 	public boolean composited;
+	
 //	public long size;
 	
 	public ExecContext(final HttpHost target,final HttpRequest request,final HttpResponse response) {

@@ -19,14 +19,11 @@ package com.intel.cosbench.driver.agent;
 
 import java.util.*;
 
-import com.intel.cosbench.api.storage.StorageAPI;
 import com.intel.cosbench.driver.model.*;
-import com.intel.cosbench.driver.operator.*;
 import com.intel.cosbench.driver.util.OperationPicker;
-import com.intel.cosbench.log.Logger;
 import com.intel.cosbench.service.AbortedException;
 
-public class WorkAgent extends AbstractAgent implements Session {
+public class WorkAgent extends AbstractAgent {
 
 //    private long start; /* agent startup time */
 //    private long begin; /* effective workload startup time */
@@ -59,7 +56,7 @@ public class WorkAgent extends AbstractAgent implements Session {
 //	private Status currMarksCloned = new Status();/* for snapshots */
 //    private Status globalMarks = new Status(); /* for the final report */
     
-    private WorkStats stats = new WorkStats();
+//    private WorkStats stats = new WorkStats();
 
     public WorkAgent() {
         /* empty */
@@ -69,7 +66,7 @@ public class WorkAgent extends AbstractAgent implements Session {
     public void setWorkerContext(WorkerContext workerContext) {
         super.setWorkerContext(workerContext);
         dog.setWorkerContext(workerContext);
-        stats.setWorkerContext(workerContext);
+//        stats.setWorkerContext(workerContext);
     }
 
     public void setOperationPicker(OperationPicker operationPicker) {
@@ -78,61 +75,63 @@ public class WorkAgent extends AbstractAgent implements Session {
 
     public void setOperatorRegistry(OperatorRegistry operatorRegistry) {
         this.operatorRegistry = operatorRegistry;
-        stats.setOperatorRegistry(operatorRegistry);
+        workerContext.setOperatorRegistry(operatorRegistry);
     }
 
-    @Override
-    public int getIndex() {
-        return workerContext.getIndex();
-    }
-
-    @Override
-    public int getTotalWorkers() {
-        return workerContext.getMission().getTotalWorkers();
-    }
-
-    @Override
-    public Random getRandom() {
-        return workerContext.getRandom();
-    }
-
-    @Override
-    public StorageAPI getApi() {
-        return workerContext.getStorageApi();
-    }
-
-    @Override
-    public Logger getLogger() {
-        return workerContext.getLogger();
-    }
-
-    @Override
-    public WorkStats getStats() {
-        return stats;
-    }
-    
-    @Override
-    public OperationListener getListener() {
-    	return stats;
-    }
+//    @Override
+//    public int getIndex() {
+//        return workerContext.getIndex();
+//    }
+//
+//    @Override
+//    public int getTotalWorkers() {
+//        return workerContext.getMission().getTotalWorkers();
+//    }
+//
+//    @Override
+//    public Random getRandom() {
+//        return workerContext.getRandom();
+//    }
+//
+//    @Override
+//    public StorageAPI getApi() {
+//        return workerContext.getStorageApi();
+//    }
+//
+//    @Override
+//    public Logger getLogger() {
+//        return workerContext.getLogger();
+//    }
+//
+//    @Override
+//    public WorkStats getStats() {
+//        return stats;
+//    }
+//    
+//    @Override
+//    public OperationListener getListener() {
+//    	return stats;
+//    }
 
     @Override
     protected void execute() {
-        stats.initTimes();
-        stats.initLimites();
-        stats.initMarks();
-        dog.watch(stats.getTimeout());
+    	workerContext.init();
+//        stats.initTimes();
+//        stats.initLimites();
+//        stats.initMarks();
+
+//    	dog.watch(workerContext.getTimeout()/*stats.getTimeout()*/ );
         try {
             doWork(); // launch work
         } finally {
-            dog.dismiss();
+//            dog.dismiss();
         }
         /* work agent has completed execution successfully */
     }
 
-    public void doSnapshot() {
-    	stats.doSnapshot();
-    }
+//    public void doSnapshot() {
+//    	stats.doSnapshot();
+//    }
     
 //    private void initTimes() {
 //        Mission mission = workerContext.getMission();
@@ -167,13 +166,16 @@ public class WorkAgent extends AbstractAgent implements Session {
 //    }
 
     private void doWork() {
-        while (!stats.isFinished())
+//        stats.doSnapshot();
+        while (!workerContext.isFinished())
             try {
                 performOperation();
             } catch (AbortedException ae) {
-                stats.doSummary();
-                stats.finished();
+            	if(workerContext.getStats().hasSamples())
+            		workerContext.getStats().doSummary();
+                workerContext.getStats().finished();
             }
+//        stats.doSnapshot();
     }
 
     private void performOperation() {
@@ -182,7 +184,7 @@ public class WorkAgent extends AbstractAgent implements Session {
         String op = operationPicker.pickOperation(random);
         OperatorContext context = operatorRegistry.getOperator(op);
 //        statsCallback.setOpType(context.getOperator().getOpType());
-        context.getOperator().operate(this);
+        context.getOperator().operate(workerContext);
     }
 
 //    @Override
