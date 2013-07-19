@@ -116,57 +116,20 @@ public class WorkAgent extends AbstractAgent {
     @Override
     protected void execute() {
     	workerContext.init();
-//        stats.initTimes();
-//        stats.initLimites();
-//        stats.initMarks();
 
-//    	dog.watch(workerContext.getTimeout()/*stats.getTimeout()*/ );
+    	dog.watch(workerContext.getTimeout()/*stats.getTimeout()*/ );
         try {
             doWork(); // launch work
         } finally {
-//            dog.dismiss();
+            dog.dismiss();
         }
         /* work agent has completed execution successfully */
     }
 
-//    public void doSnapshot() {
-//    	stats.doSnapshot();
-//    }
-    
-//    private void initTimes() {
-//        Mission mission = workerContext.getMission();
-//        interval = mission.getInterval();
-//        lcheck = curr = start = System.currentTimeMillis();
-//        check = lcheck + interval * 1000;
-//        begin = start;
-//        timeout = 0L;
-//        lop = lrsample = lsample = start;
-//        frsample = lbegin = end = Long.MAX_VALUE;
-//    }
-//
-//    private void initLimites() {
-//        Mission mission = workerContext.getMission();
-//        totalOps = mission.getTotalOps() / mission.getTotalWorkers();
-//        totalBytes = mission.getTotalBytes() / mission.getTotalWorkers();
-//        if (mission.getRuntime() == 0)
-//            return;
-//        begin = start + mission.getRampup() * 1000;
-//        end = begin + mission.getRuntime() * 1000;
-//        timeout = end + mission.getRampdown() * 1000;
-//    }
-//
-//    private void initMarks() {
-//        Set<String> types = new LinkedHashSet<String>();
-//        for (OperatorContext op : operatorRegistry)
-//            types.add(getMarkType(op.getOpType(), op.getSampleType()));
-//        for (String type : types)
-//            currMarks.addMark(newMark(type));
-//        for (String type : types)
-//            globalMarks.addMark(newMark(type));
-//    }
 
     private void doWork() {
-//        stats.doSnapshot();
+    	workerContext.getStats().doSnapshot();
+    	
         while (!workerContext.isFinished())
             try {
                 performOperation();
@@ -175,7 +138,8 @@ public class WorkAgent extends AbstractAgent {
             		workerContext.getStats().doSummary();
                 workerContext.getStats().finished();
             }
-//        stats.doSnapshot();
+        
+        workerContext.getStats().doSnapshot();
     }
 
     private void performOperation() {

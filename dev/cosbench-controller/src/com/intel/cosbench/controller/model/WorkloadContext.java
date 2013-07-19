@@ -220,9 +220,9 @@ public class WorkloadContext implements WorkloadInfo {
         return report != null ? report : new Report();
     }
 
-    public void setReport(Report report) {
-        this.report = report;
-    }
+//    public void setReport(Report report) {
+//        this.report = report;
+//    }
 
     public void addListener(WorkloadListener listener) {
         listeners.add(listener);

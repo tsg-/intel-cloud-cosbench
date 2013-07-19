@@ -194,9 +194,9 @@ public class MissionContext implements MissionInfo {
         return report != null ? report : new Report();
     }
 
-    public void setReport(Report report) {
-        this.report = report;
-    }
+//    public void setReport(Report report) {
+//        this.report = report;
+//    }
 
     public void addListener(MissionListener listener) {
         listeners.add(listener);

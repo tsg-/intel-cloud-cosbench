@@ -134,8 +134,11 @@ public class HttpClientUtil {
      *            the HTTP client to be disposed.
      */
     public static void disposeHttpClient(HttpClient client) {
-        ClientConnectionManager manager = client.getConnectionManager();
-        manager.shutdown();
+    	if(client != null)
+    	{
+	        ClientConnectionManager manager = client.getConnectionManager();
+	        manager.shutdown();
+    	}
     }
 
     public static HttpGet makeHttpGet(String url) {

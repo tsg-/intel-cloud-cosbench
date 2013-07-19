@@ -45,17 +45,12 @@ public class WorkStats extends StatsCollector implements OperationListener {
     private static volatile boolean isFinished = false;
 
     private Status currMarks = new Status(); /* for snapshots */
-//	private Status currMarksCloned = new Status();/* for snapshots */
+	private Status currMarksCloned = new Status();/* for snapshots */
     private Status globalMarks = new Status(); /* for the final report */
     
     private WorkerContext workerContext;
     /* Each worker has its private required version */
     private volatile int version = 0;
-
-//    public void setWorkerContext(WorkerContext workerContext) {
-//    	this.workerContext = workerContext;
-//    	this.workerContext.setStatsCollector(this);
-//    }
     
     public WorkStats(WorkerContext workerContext) {
     	this.workerContext = workerContext;
@@ -118,6 +113,7 @@ public class WorkStats extends StatsCollector implements OperationListener {
 //    	{
 	        long window = lrsample - frsample;
 	        Report report = new Report();
+	        System.out.println("Mark Count = " + globalMarks.getAllMarks().length);
 	        for (Mark mark : globalMarks)
 	            report.addMetrics(Metrics.convert(mark, window));
 	        workerContext.setReport(report);
@@ -144,31 +140,18 @@ public class WorkStats extends StatsCollector implements OperationListener {
 		return this.ltotalBytes;
 	}
 
-//    private int getTotalOps() {
-//        int sum = 0;
-//        for (Mark mark : globalMarks)
-//            sum += mark.getTotalOpCount();
-//        return sum;
-//    }
-//
-//    private long getTotalBytes() {
-//        long bytes = 0;
-//        for (Mark mark : globalMarks)
-//            bytes += mark.getByteCount();
-//        return bytes;
-//    }
-
     public Snapshot doSnapshot() {
-//		synchronized (currMarks) {
-//			for (Mark mark : currMarks) {
-//				currMarksCloned.addMark(mark.clone());
-//				mark.clear();
-//			}
-//		}
+		synchronized (currMarks) {
+			for (Mark mark : currMarks) {
+				currMarksCloned.addMark(mark.clone());
+				mark.clear();
+			}
+			version++;
+		}
 
 		long window = System.currentTimeMillis() - lcheck;
 		Report report = new Report();
-		for (Mark mark : currMarks /*currMarksCloned*/) {
+		for (Mark mark : currMarksCloned) {
 			for (Sample sample : mark.getSamples()) {
 				mark.addSample(sample);
 			}
@@ -177,7 +160,7 @@ public class WorkStats extends StatsCollector implements OperationListener {
 		}
 
 		Snapshot snapshot = new Snapshot(report);
-		version++;
+
 	    snapshot.setVersion(version);
 	    snapshot.setMinVersion(version);
 	    snapshot.setMaxVersion(version);
@@ -234,20 +217,6 @@ public class WorkStats extends StatsCollector implements OperationListener {
 				onOperationCompleted(result);
 			}
 		}
-		
-	
-//		this.ts_end = System.currentTimeMillis();
-//	
-//        String type = getMarkType(sample.getOpType(), sample.getSampleType());
-//        currMarks.getMark(type).addToSamples(sample);
-//        if (lbegin >= begin && lbegin < end && curr > begin && curr <= end) {
-//            globalMarks.getMark(type).addToSamples(sample);
-//            setlTotalBytes(getlTotalBytes() + sample.getBytes());
-//            //operatorRegistry.getOperator(sample.getOpType()).addSample(sample);
-//            if (lbegin < frsample)
-//                frsample = lbegin; // first sample emitted during runtime
-//            lrsample = curr; // last sample collected during runtime
-//        }
 	}
     
 }
