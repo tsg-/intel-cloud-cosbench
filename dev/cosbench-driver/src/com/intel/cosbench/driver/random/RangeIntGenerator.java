@@ -13,7 +13,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. 
-*/ 
+ */
 
 package com.intel.cosbench.driver.random;
 
@@ -30,10 +30,9 @@ public class RangeIntGenerator implements IntGenerator {
 
     private int lower;
     private int upper;
-    
+
     private AtomicInteger cursor;
 
-    
     static class NonSharedGeneratorThread extends Thread 
     {
     	private int all;
@@ -232,14 +231,13 @@ public class RangeIntGenerator implements IntGenerator {
 		testDuplicate();
 		
     }
-    
-    
+
     public RangeIntGenerator(int lower, int upper) {
         if (lower <= 0 || upper <= 0 || lower > upper)
             throw new IllegalArgumentException();
         this.lower = lower;
         this.upper = upper;
-        
+
         this.cursor = new AtomicInteger(0);
     }
 
@@ -250,17 +248,17 @@ public class RangeIntGenerator implements IntGenerator {
 
     @Override
     public int next(Random random, int idx, int all) {
-    	int range = upper - lower + 1;
-    	int base = range / all;
-    	int extra = range % all;
-    	int offset = base * (idx - 1) + (extra >= idx - 1 ? idx - 1 : extra);
-    	int segment = base + (extra >= idx ? 1 : 0);
-    	
-    	cursor.set(cursor.get()%(segment));
+        int range = upper - lower + 1;
+        int base = range / all;
+        int extra = range % all;
+        int offset = base * (idx - 1) + (extra >= idx - 1 ? idx - 1 : extra);
+        int segment = base + (extra >= idx ? 1 : 0);
 
-    	return lower + offset + cursor.getAndIncrement();
+        cursor.set(cursor.get() % (segment));
+
+        return lower + offset + cursor.getAndIncrement();
     }
-    
+
     public static RangeIntGenerator parse(String pattern) {
         try {
             return tryParseOld(pattern);
@@ -280,7 +278,7 @@ public class RangeIntGenerator implements IntGenerator {
         pattern = StringUtils.substringBetween(pattern, "(", ")");
         String[] args = StringUtils.split(pattern, ",");
         int lower = Integer.parseInt(args[0]);
-        int upper = Integer.parseInt(args[1]);        
+        int upper = Integer.parseInt(args[1]);
         return new RangeIntGenerator(lower, upper);
     }
 
