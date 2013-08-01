@@ -6,6 +6,8 @@ import java.io.*;
 
 import com.amazonaws.*;
 import com.amazonaws.auth.*;
+import com.amazonaws.regions.*;
+import com.amazonaws.regions.Region;
 import com.amazonaws.services.s3.*;
 import com.amazonaws.services.s3.model.*;
 
@@ -21,7 +23,7 @@ public class S3Storage extends NoneStorage {
     private String secretKey;
     private String endpoint;
     
-    private AmazonS3 client;
+    private AmazonS3Client client;
 
     @Override
     public void init(Config config, Logger logger) {
@@ -57,12 +59,15 @@ public class S3Storage extends NoneStorage {
         AWSCredentials myCredentials = new BasicAWSCredentials(accessKey, secretKey);
         client = new AmazonS3Client(myCredentials, clientConf);
         client.setEndpoint(endpoint);
+
+        Region defReg = Region.getRegion(Regions.DEFAULT_REGION);
+		client.setRegion(defReg);
         
         logger.debug("S3 client has been initialized");
     }
     
     @Override
-    public void setAuthContext(AuthContext info) {
+    public void setAuthContext(Context info) {
         super.setAuthContext(info);
 //        try {
 //        	client = (AmazonS3)info.get(S3CLIENT_KEY);

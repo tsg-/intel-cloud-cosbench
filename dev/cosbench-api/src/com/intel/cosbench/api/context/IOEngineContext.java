@@ -21,7 +21,7 @@ package com.intel.cosbench.api.context;
  * This class represents context information exchanged between an Auth-API and a
  * Storage-API.
  * 
- * @author ywang19, qzheng7
+ * @author ywang19
  * 
  */
 public class IOEngineContext extends Context {

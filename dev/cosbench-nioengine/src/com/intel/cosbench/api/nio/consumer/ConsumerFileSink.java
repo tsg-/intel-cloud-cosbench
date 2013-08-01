@@ -26,6 +26,12 @@ public class ConsumerFileSink extends ConsumerSink<File> {
 	
 	public ConsumerFileSink(File file) throws FileNotFoundException {
 		super(file);
+		
+		if(!file.exists()){
+			System.out.println("Try to create file " + file.getAbsolutePath() + File.pathSeparator + file.getName());
+			file.getParentFile().mkdirs();
+//			file.createNewFile();
+		}
         this.accessfile = new RandomAccessFile(this.sink, "rw");
 	}
 	

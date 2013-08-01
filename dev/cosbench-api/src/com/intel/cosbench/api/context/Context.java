@@ -30,6 +30,10 @@ public class Context {
     public void put(String key, Object val) {
         params.put(key, val);
     }
+    
+    public void put(String key, String val) {
+    	params.put(key, val);
+    }
 
     public Object get(String key) {
         return get(key, null);

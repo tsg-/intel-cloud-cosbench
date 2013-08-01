@@ -34,6 +34,7 @@ import org.apache.http.util.Asserts;
 
 import com.intel.cosbench.api.context.ExecContext;
 import com.intel.cosbench.api.ioengine.IOClient;
+import com.intel.cosbench.api.nio.consumer.ConsumerBufferSink;
 import com.intel.cosbench.api.nio.consumer.ConsumerFileSink;
 import com.intel.cosbench.api.nio.consumer.ZCConsumer;
 import com.intel.cosbench.api.nio.producer.BaseZCAsyncRequestProducer;
@@ -60,6 +61,10 @@ public class NIOClient implements IOClient {
 	
 	private final RequestThrottler throttler;
 	private ResponseValidator validator;
+	private StatsCollector collector;
+	
+	private final String doc_root = "./doc_root";
+
 	public ResponseValidator getValidator() {
 		return validator;
 	}
@@ -67,8 +72,6 @@ public class NIOClient implements IOClient {
 	public void setValidator(ResponseValidator validator) {
 		this.validator = validator;
 	}
-
-	private StatsCollector collector;
 	
 	public StatsCollector getCollector() {
 		return collector;
@@ -78,9 +81,6 @@ public class NIOClient implements IOClient {
 		this.collector = collector;
 	}
 
-//	private COSBFutureCallback futureCallback;
-	private String doc_root = "c:/temp/download/";
-	
 	public NIOClient(BasicNIOConnPool connPool, int concurrency)
 	{
 		Asserts.check(connPool != null, "Connection Pool shouldn't be null");
@@ -155,14 +155,12 @@ public class NIOClient implements IOClient {
 	public void GET(HttpHost target, HttpRequest request) throws Exception {
         // Create HTTP requester
 //    	long start = System.currentTimeMillis();
-    	
-		System.out.println("INSIDE NIOEngine: Get Object");
     	HttpCoreContext coreContext = HttpCoreContext.create();
     	String uri = request.getRequestLine().getUri();
-    	String down_path = doc_root + "/" + uri;
+    	String down_path = doc_root + "/download/" + uri;
     	
-    	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
-//    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerNullSink(ByteBuffer.allocate(8192)));
+//    	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
+    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerBufferSink(ByteBuffer.allocate(8192)));
    		
  		// initialize future callback.
     	COSBFutureCallback futureCallback = makeFutureCallback(new ExecContext(target, request, null));
@@ -177,11 +175,8 @@ public class NIOClient implements IOClient {
         if(future.isDone()) {
         	System.out.println("Request is done.");
         }
-        	
 //        future.get();
-        
 //        long end = System.currentTimeMillis();
-//        
 //        System.out.println("Elapsed Time: " + (end-start) + " ms.");
     }
 
@@ -191,15 +186,13 @@ public class NIOClient implements IOClient {
     	
     	HttpCoreContext coreContext = HttpCoreContext.create();
     	String uri = request.getRequestLine().getUri();
-    	String down_path = doc_root + "/" + uri;
+    	String down_path = doc_root + "/download/" + uri;
     	
-    	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
-//    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerNullSink(ByteBuffer.allocate(8192)));
+//    	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
+    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerBufferSink(ByteBuffer.allocate(8192)));
    		
  		// initialize future callback.
     	COSBFutureCallback futureCallback = makeFutureCallback(new ExecContext(target, request, null));
-//		futureCallback.setTarget(target);
-//    	futureCallback.countUp();
         Future<HttpResponse> future = requester.execute(
                 new BasicAsyncRequestProducer(target, request),
                 consumer,
@@ -224,8 +217,8 @@ public class NIOClient implements IOClient {
     	
     	HttpCoreContext coreContext = HttpCoreContext.create();
     	String uri = request.getRequestLine().getUri();
-    	String down_path = "c:/temp/download/" + uri;
-    	String up_path = "c:/temp/upload/" + uri;
+    	String down_path = doc_root + "/download/" + uri;
+    	String up_path = doc_root + "/upload/" + uri;
     	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
 //    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerBufferSink(ByteBuffer.allocate(8192)));
     	

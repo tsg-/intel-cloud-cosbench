@@ -88,7 +88,7 @@ public interface StorageAPI {
      *            - one AuthContext instance, normally, it's the result returned
      *            by the <code>login()</code> from the Auth-API.
      */
-    public void setAuthContext(AuthContext info);
+    public void setAuthContext(Context info);
 
     /**
      * Downloads an object from a container.

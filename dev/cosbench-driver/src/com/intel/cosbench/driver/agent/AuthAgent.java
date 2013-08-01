@@ -22,7 +22,7 @@ import java.util.Random;
 import org.apache.commons.lang.math.RandomUtils;
 
 import com.intel.cosbench.api.auth.*;
-import com.intel.cosbench.api.context.AuthContext;
+import com.intel.cosbench.api.context.Context;
 import com.intel.cosbench.api.storage.StorageAPI;
 import com.intel.cosbench.log.Logger;
 import com.intel.cosbench.service.AbortedException;
@@ -72,7 +72,7 @@ class AuthAgent extends AbstractAgent {
         logger.debug("worker {} has been successfully authed", idx);
     }
 
-    private AuthContext login() {
+    private Context login() {
         Logger logger = getMissionLogger();
         AuthAPI authApi = workerContext.getAuthApi();
         int attempts = 0;

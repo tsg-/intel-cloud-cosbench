@@ -81,7 +81,7 @@ public class NoneStorage implements StorageAPI {
     }
 
     @Override
-    public void setAuthContext(AuthContext info) {
+    public void setAuthContext(Context info) {
         /* empty */
     }
 

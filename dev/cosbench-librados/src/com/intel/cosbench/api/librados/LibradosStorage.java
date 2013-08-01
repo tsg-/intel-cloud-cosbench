@@ -29,7 +29,7 @@ import java.io.InputStream;
 import com.ceph.rados.IoCTX;
 import com.ceph.rados.Rados;
 import com.ceph.rados.RadosException;
-import com.intel.cosbench.api.context.AuthContext;
+import com.intel.cosbench.api.context.Context;
 import com.intel.cosbench.api.storage.NoneStorage;
 import com.intel.cosbench.api.storage.StorageException;
 import com.intel.cosbench.config.Config;
@@ -77,7 +77,7 @@ public class LibradosStorage extends NoneStorage {
         }
     }
 
-    public void setAuthContext(AuthContext info) {
+    public void setAuthContext(Context info) {
         super.setAuthContext(info);
     }
 

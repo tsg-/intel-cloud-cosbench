@@ -18,22 +18,32 @@ limitations under the License.
 package com.intel.cosbench.api.swiftnio;
 
 import static com.intel.cosbench.client.swiftnio.SwiftConstants.*;
+import static org.apache.http.HttpStatus.SC_ACCEPTED;
+import static org.apache.http.HttpStatus.SC_CREATED;
+import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 
 import java.io.*;
 import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.message.BasicHttpRequest;
 
 import com.intel.cosbench.api.validator.*;
 import com.intel.cosbench.api.nio.client.NIOClient;
-import com.intel.cosbench.api.context.AuthContext;
+
+import com.intel.cosbench.api.context.Context;
 import com.intel.cosbench.api.nio.engine.NIOEngine;
 import com.intel.cosbench.api.stats.BaseStatsCollector;
 import com.intel.cosbench.api.stats.StatsCollector;
 import com.intel.cosbench.api.storage.*;
+import com.intel.cosbench.client.http.HttpClientUtil;
 //import com.intel.cosbench.client.http.HttpClientUtil;
 import com.intel.cosbench.client.swiftnio.*;
 import com.intel.cosbench.config.Config;
@@ -45,7 +55,7 @@ import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 /**
  * This class encapsulates a Swift implementation for Storage API.
  * 
- * @author ywang19, qzheng7
+ * @author ywang19
  * 
  */
 class SwiftNioStorage extends NoneStorage {
@@ -53,11 +63,11 @@ class SwiftNioStorage extends NoneStorage {
     private int timeout; // connection and socket timeout
     
     /* current operation */
-    private volatile BasicHttpRequest method;
+    private volatile HttpRequest method;
     
     /* user context */
-    private String authToken;
-    private String storageURL;
+    private volatile String authToken;
+    private volatile String storageURL;
 
     private NIOClient nioclient;
     
@@ -105,17 +115,17 @@ class SwiftNioStorage extends NoneStorage {
 	}
 
 	@Override
-    public void setAuthContext(AuthContext info) {
+    public synchronized void setAuthContext(Context info) {
         super.setAuthContext(info);
-//        authToken = info.getStr(AUTH_TOKEN_KEY, AUTH_TOKEN_DEFAULT);
-//        storageURL = info.getStr(STORAGE_URL_KEY, STORAGE_URL_DEFAULT);
-    	
-//        try {
-//            client.init(authToken, storageURL);
-//        } catch (Exception e) {
-//            throw new StorageException(e);
-//        }
-//        logger.debug("using auth token: {}, storage url: {}", authToken, storageURL);
+        if(info != null) {
+	        authToken = info.getStr(AUTH_TOKEN_KEY, AUTH_TOKEN_DEFAULT);
+	        storageURL = info.getStr(STORAGE_URL_KEY, STORAGE_URL_DEFAULT);
+	        
+	        parms.put(AUTH_TOKEN_KEY, authToken);
+	        parms.put(STORAGE_URL_KEY, storageURL);
+        }
+
+        logger.debug("using auth token: {}, storage url: {}", authToken, storageURL);
     }
 
     @Override
@@ -162,6 +172,7 @@ class SwiftNioStorage extends NoneStorage {
 	        	System.out.println("Path=" + path);
 	            System.out.println("[" + (i+1) + "]" + " Start Timestamp=" + System.currentTimeMillis());
 	            
+	            storage.setAuthContext(new Context());
 	            storage.getObject(container, object, null);
 	            
 	            System.out.println("[" + (i+1) + "]" + " End Timestamp=" + System.currentTimeMillis());
@@ -172,9 +183,7 @@ class SwiftNioStorage extends NoneStorage {
     		ie.printStackTrace();
     	}
     	
-    	ioengine.shutdown();
-    	    	
-
+    	ioengine.shutdown();   	
     }
     
     public static void main(String[] args)
@@ -187,38 +196,23 @@ class SwiftNioStorage extends NoneStorage {
     public InputStream getObject(String container, String object, Config config) {
         super.getObject(container, object, config);
         InputStream stream = new ByteInputStream();
+
+		if(nioclient == null)
+		{
+			System.err.println("nio client is not initialized yet!");
+			return stream;
+		}
+
         try {              	
         	// construct request.
-//            method = nioclient.makeHttpGet("/" + container + "/" + object);
-        	
-          method = nioclient.makeHttpGet("/" + container + "/" + object);
-
-//        	method.setHeader(X_AUTH_TOKEN, authToken);           
-            
+        	System.out.println("Storage URL = " + storageURL);
+        	URI uri = URI.create(storageURL);        	
+        	method = nioclient.makeHttpGet(uri.getPath() + "/" + container + "/" + object);
+        	method.setHeader(X_AUTH_TOKEN, authToken);              	
             // issue request.
-    		HttpHost target = new HttpHost("127.0.0.1", 8080, "http");
-
-    		if(nioclient == null)
-    		{
-    			System.err.println("nio client is not initialized yet!");
-    			return null;
-    		}
+    		HttpHost target = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
     		
             nioclient.GET(target, method);
-            
-            // check response.
-            // in FutureCallback.
-            
-//            if (response.getStatusCode() == SC_OK)
-//                return response.getResponseBodyAsStream();
-//            response.consumeResposeBody();
-//            
-//            if (response.getStatusCode() == SC_NOT_FOUND)
-//                throw new SwiftFileNotFoundException("object not found: "
-//                        + container + "/" + object, response.getResponseHeaders(),
-//                        response.getStatusLine());
-//            throw new SwiftException("unexpected result from server",
-//                    response.getResponseHeaders(), response.getStatusLine());
             
             System.out.println("Request is issued!");
             
@@ -232,6 +226,7 @@ class SwiftNioStorage extends NoneStorage {
             String msg = se.getHttpStatusLine().toString();
             throw new StorageException(msg, se);
         } catch (Exception e) {
+        	e.printStackTrace();
             throw new StorageException(e);
         }
     }
@@ -276,18 +271,44 @@ class SwiftNioStorage extends NoneStorage {
     public void createObject(String container, String object, InputStream data,
             long length, Config config) {
         super.createObject(container, object, data, length, config);
-//        try {
-//            client.storeStreamedObject(container, object, data, length);
-//        } catch (SocketTimeoutException ste) {
-//            throw new StorageTimeoutException(ste);
-//        } catch (InterruptedIOException ie) {
-//            throw new StorageInterruptedException(ie);
-//        } catch (SwiftException se) {
-//            String msg = se.getHttpStatusLine().toString();
-//            throw new StorageException(msg, se);
-//        } catch (Exception e) {
-//            throw new StorageException(e);
-//        }
+		if(nioclient == null)
+		{
+			System.err.println("nio client is not initialized yet!");
+			return;
+		}
+        
+        try {
+        	// construct request.
+        	System.out.println("Storage URL = " + storageURL);
+        	URI uri = URI.create(storageURL);   
+        	HttpEntityEnclosingRequest method = nioclient.makeHttpPut(uri.getPath() + "/" + container + "/" + object);
+        	this.method = method;
+            method.setHeader(X_AUTH_TOKEN, authToken);
+            InputStreamEntity entity = new InputStreamEntity(data, length);
+            if (length < 0)
+                entity.setChunked(true);
+            else
+                entity.setChunked(false);
+            entity.setContentType("application/octet-stream");
+            method.setEntity(entity);
+            
+            // issue request.
+    		HttpHost target = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
+    		
+            nioclient.PUT(target, method);
+            
+            System.out.println("Request is issued!");
+        } catch (SocketTimeoutException ste) {
+            throw new StorageTimeoutException(ste);
+        } catch (InterruptedIOException ie) {
+            throw new StorageInterruptedException(ie);
+        } catch (SwiftException se) {
+            String msg = se.getHttpStatusLine().toString();
+            throw new StorageException(msg, se);
+        } catch (Exception e) {
+        	e.printStackTrace();
+            throw new StorageException(e);
+        }
     }
 
     @Override
@@ -361,11 +382,11 @@ class SwiftNioStorage extends NoneStorage {
 //        }
     }
 
-//    private String getContainerPath(String container) {
-//        return storageURL + "/" + HttpClientUtil.encodeURL(container);
-//    }
+    private String getContainerPath(String container) {
+        return storageURL + "/" + HttpClientUtil.encodeURL(container);
+    }
 
-//    private String getObjectPath(String container, String object) {
-//        return getContainerPath(container) + "/" + HttpClientUtil.encodeURL(object);
-//    }
+    private String getObjectPath(String container, String object) {
+        return getContainerPath(container) + "/" + HttpClientUtil.encodeURL(object);
+    }
 }

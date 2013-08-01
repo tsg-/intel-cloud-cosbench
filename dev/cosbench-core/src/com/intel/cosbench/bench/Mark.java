@@ -98,41 +98,41 @@ public class Mark implements Cloneable, Item {
         return sampleCount;
     }
 
-    public void setSampleCount(int sampleCount) {
-        this.sampleCount = sampleCount;
-    }
+//    public void setSampleCount(int sampleCount) {
+//        this.sampleCount = sampleCount;
+//    }
 
     public int getTotalOpCount() {
         return totalOpCount;
     }
 
-    public void setTotalOpCount(int totalOpCount) {
-        this.totalOpCount = totalOpCount;
-    }
+//    public void setTotalOpCount(int totalOpCount) {
+//        this.totalOpCount = totalOpCount;
+//    }
 
     public int getTotalSampleCount() {
         return totalSampleCount;
     }
 
-    public void setTotalSampleCount(int totalSampleCount) {
-        this.totalSampleCount = totalSampleCount;
-    }
+//    public void setTotalSampleCount(int totalSampleCount) {
+//        this.totalSampleCount = totalSampleCount;
+//    }
 
     public long getRtSum() {
         return rtSum;
     }
 
-    public void setRtSum(long rtSum) {
-        this.rtSum = rtSum;
-    }
+//    public void setRtSum(long rtSum) {
+//        this.rtSum = rtSum;
+//    }
 
     public long getByteCount() {
         return byteCount;
     }
 
-    public void setByteCount(long byteCount) {
-        this.byteCount = byteCount;
-    }
+//    public void setByteCount(long byteCount) {
+//        this.byteCount = byteCount;
+//    }
 
     public void clear() {
         opCount = 0;
@@ -145,7 +145,9 @@ public class Mark implements Cloneable, Item {
     }
 
 	public void addToSamples(Sample sample) {
+		addSample(sample);
 		samples.add(sample);
+		System.out.println("Sample count in Global Mark is " + samples.size());
 	}
 
 	public Vector<Sample> getSamples() {

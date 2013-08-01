@@ -128,7 +128,7 @@ public class WorkAgent extends AbstractAgent {
 
 
     private void doWork() {
-    	workerContext.getStats().doSnapshot();
+//    	workerContext.getSnapshot();
     	
         while (!workerContext.isFinished())
             try {
@@ -139,7 +139,7 @@ public class WorkAgent extends AbstractAgent {
                 workerContext.getStats().finished();
             }
         
-        workerContext.getStats().doSnapshot();
+//        workerContext.getSnapshot();
     }
 
     private void performOperation() {

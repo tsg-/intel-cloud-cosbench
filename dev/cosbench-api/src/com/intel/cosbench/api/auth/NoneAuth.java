@@ -20,6 +20,9 @@ package com.intel.cosbench.api.auth;
 import static com.intel.cosbench.api.auth.AuthConstants.*;
 
 import com.intel.cosbench.api.context.*;
+import com.intel.cosbench.api.ioengine.IOEngineAPI;
+import com.intel.cosbench.api.stats.StatsCollector;
+import com.intel.cosbench.api.validator.ResponseValidator;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.Logger;
 
@@ -36,6 +39,10 @@ public class NoneAuth implements AuthAPI {
 
     protected Context parms;
     protected Logger logger;
+    
+    protected IOEngineAPI ioengine;
+    protected StatsCollector collector;
+    protected ResponseValidator validator;
 
     /* configurations */
     private boolean logging; // enable logging
@@ -44,6 +51,21 @@ public class NoneAuth implements AuthAPI {
         /* empty */
     }
 
+    @Override
+    public void initCollector(StatsCollector collector) {
+    	this.collector = collector;
+    }
+
+    @Override
+    public void initValidator(ResponseValidator validator) {
+    	this.validator = validator;
+    }
+    
+    @Override
+    public IOEngineAPI initIOEngine(IOEngineAPI ioengine) {
+    	return this.ioengine = ioengine;
+    }
+    
     @Override
     public void init(Config config, Logger logger) {
         this.logger = logger;
@@ -65,7 +87,7 @@ public class NoneAuth implements AuthAPI {
     }
 
     @Override
-    public AuthContext login() {
+    public Context login() {
         if (logging)
             logger.info("perform authentication");
         return null;

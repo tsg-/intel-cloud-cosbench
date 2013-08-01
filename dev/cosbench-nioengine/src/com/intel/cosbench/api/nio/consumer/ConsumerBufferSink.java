@@ -46,7 +46,7 @@ public class ConsumerBufferSink extends ConsumerSink<ByteBuffer> {
 		}	
 		
 		sink.clear();
-		System.out.println("Byte Transferred = " + transferred);
+//		System.out.println("Byte Transferred = " + transferred);
 	}
 	
 	@Override

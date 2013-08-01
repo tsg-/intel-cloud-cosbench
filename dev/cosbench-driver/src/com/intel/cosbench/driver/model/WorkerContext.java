@@ -58,7 +58,7 @@ public class WorkerContext implements WorkerInfo, Session {
 //    private volatile int version = 0;
 
 //    private StatsCollector collector;
-    private WorkStats stats = new WorkStats(this);
+    private WorkStats stats;
     
     public WorkerContext() {
         /* empty */

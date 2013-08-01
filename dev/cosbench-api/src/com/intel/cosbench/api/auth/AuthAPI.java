@@ -18,6 +18,9 @@ limitations under the License.
 package com.intel.cosbench.api.auth;
 
 import com.intel.cosbench.api.context.*;
+import com.intel.cosbench.api.ioengine.IOEngineAPI;
+import com.intel.cosbench.api.stats.StatsCollector;
+import com.intel.cosbench.api.validator.ResponseValidator;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.Logger;
 
@@ -46,7 +49,7 @@ public interface AuthAPI {
      *         configured for the authentication mechanism if authentication is successful, and otherwise, an 
      *         exception will be raised.
      */
-    public AuthContext login();
+    public Context login();
 
     /**
      * Retrieves parameters and current settings used by the Auth-API.
@@ -60,5 +63,11 @@ public interface AuthAPI {
      * Releases the resources held by this Auth-API.
      */
     public void dispose();
+
+	void initCollector(StatsCollector collector);
+
+	void initValidator(ResponseValidator validator);
+
+	IOEngineAPI initIOEngine(IOEngineAPI ioengine);
 
 }

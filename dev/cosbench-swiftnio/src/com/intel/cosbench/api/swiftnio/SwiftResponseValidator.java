@@ -3,11 +3,12 @@ package com.intel.cosbench.api.swiftnio;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
+import com.intel.cosbench.api.validator.BaseResponseValidator;
 import com.intel.cosbench.api.validator.ResponseValidator;
 import com.intel.cosbench.client.swiftnio.SwiftException;
 import com.intel.cosbench.client.swiftnio.SwiftFileNotFoundException;
 
-public class SwiftResponseValidator extends ResponseValidator {
+public class SwiftResponseValidator extends BaseResponseValidator {
 
 	public SwiftResponseValidator() {
 		

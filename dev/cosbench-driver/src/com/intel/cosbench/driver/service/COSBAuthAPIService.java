@@ -20,6 +20,8 @@ package com.intel.cosbench.driver.service;
 import java.util.List;
 
 import com.intel.cosbench.api.auth.*;
+import com.intel.cosbench.api.ioengine.IOEngineAPI;
+import com.intel.cosbench.api.storage.StorageAPI;
 import com.intel.cosbench.config.*;
 import com.intel.cosbench.log.*;
 
@@ -49,8 +51,9 @@ public class COSBAuthAPIService implements AuthAPIService {
     }
 
     @Override
-    public AuthAPI getAuth(String type, Config config, Logger logger) {
+    public AuthAPI getAuth(String type,  IOEngineAPI ioengine, Config config, Logger logger) {
         AuthAPI auth = createAuth(type);
+        auth.initIOEngine(ioengine);
         auth.init(config, logger);
         return auth;
     }

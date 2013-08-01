@@ -11,7 +11,7 @@ import com.intel.cosbench.api.validator.ResponseValidator;
 
 /**
  * The future callback class especially for COSBench use.
- * 
+ *    
  * @author ywang19
  *
  */
@@ -70,7 +70,6 @@ public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 	@Override
     public void completed(final HttpResponse response) {    
 		context.response = response;
-		System.out.println("FutureCallback: " + this);
 		
         System.out.println("COMPLETED: " + context.getUri() + "->" + response.getStatusLine() + "\t Outstanding Request is " + countDown());
     	

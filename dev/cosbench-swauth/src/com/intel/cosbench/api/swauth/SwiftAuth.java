@@ -26,7 +26,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ConnectTimeoutException;
 
 import com.intel.cosbench.api.auth.*;
-import com.intel.cosbench.api.context.AuthContext;
+import com.intel.cosbench.api.context.Context;
 import com.intel.cosbench.client.http.HttpClientUtil;
 import com.intel.cosbench.client.swauth.*;
 import com.intel.cosbench.config.Config;
@@ -84,7 +84,7 @@ class SwiftAuth extends NoneAuth {
     }
 
     @Override
-    public AuthContext login() {
+    public Context login() {
         super.login();
         try {
             client.login();
@@ -102,8 +102,8 @@ class SwiftAuth extends NoneAuth {
         return createContext();
     }
 
-    private AuthContext createContext() {
-        AuthContext context = new AuthContext();
+    private Context createContext() {
+        Context context = new Context();
         context.put(AUTH_TOKEN_KEY, client.getAuthToken());
         context.put(STORAGE_URL_KEY, client.getStorageURL());
         return context;

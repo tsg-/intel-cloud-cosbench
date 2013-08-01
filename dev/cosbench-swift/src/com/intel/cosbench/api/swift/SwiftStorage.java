@@ -26,7 +26,7 @@ import java.util.Map;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ConnectTimeoutException;
 
-import com.intel.cosbench.api.context.AuthContext;
+import com.intel.cosbench.api.context.Context;
 import com.intel.cosbench.api.storage.*;
 import com.intel.cosbench.client.http.HttpClientUtil;
 import com.intel.cosbench.client.swift.*;
@@ -66,7 +66,7 @@ class SwiftStorage extends NoneStorage {
     }
 
     @Override
-    public void setAuthContext(AuthContext info) {
+    public void setAuthContext(Context info) {
         super.setAuthContext(info);
         String token = info.getStr(AUTH_TOKEN_KEY);
         String url = info.getStr(STORAGE_URL_KEY);

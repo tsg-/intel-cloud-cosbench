@@ -7,7 +7,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HTTP;
 
 
-public class ExecContext implements StatsContext {
+public class ExecContext extends Context implements StatsContext {
 	public long timestamp;
 	public HttpHost target;
 	public HttpRequest request;

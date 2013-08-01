@@ -17,11 +17,12 @@ limitations under the License.
 
 package com.intel.cosbench.api.auth;
 
+import com.intel.cosbench.api.ioengine.IOEngineAPI;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.Logger;
 
 public interface AuthAPIService {
 
-    public AuthAPI getAuth(String type, Config config, Logger logger);
+    public AuthAPI getAuth(String type, IOEngineAPI ioengine, Config config, Logger logger);
 
 }

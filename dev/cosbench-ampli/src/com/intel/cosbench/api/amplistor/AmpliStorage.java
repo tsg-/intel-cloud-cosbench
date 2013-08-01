@@ -25,7 +25,7 @@ import java.util.Map;
 
 import org.apache.http.client.HttpClient;
 
-import com.intel.cosbench.api.context.AuthContext;
+import com.intel.cosbench.api.context.Context;
 import com.intel.cosbench.api.storage.*;
 import com.intel.cosbench.client.amplistor.*;
 import com.intel.cosbench.client.http.HttpClientUtil;
@@ -77,7 +77,7 @@ public class AmpliStorage extends NoneStorage {
     }
 
     @Override
-    public void setAuthContext(AuthContext info) {
+    public void setAuthContext(Context info) {
         super.setAuthContext(info);
     }
 

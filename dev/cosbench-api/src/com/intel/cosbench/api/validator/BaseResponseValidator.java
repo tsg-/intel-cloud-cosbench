@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
+import com.intel.cosbench.api.context.Context;
+
 
 
 /**
@@ -14,13 +16,15 @@ import org.apache.http.HttpStatus;
  *
  */
 public class BaseResponseValidator extends ResponseValidator {
-
+	protected Context context;
+	
 	public BaseResponseValidator() {
-		
 	}
 	
- 	public boolean validate(final HttpResponse response, Object context) throws Throwable {
-		if(response == null)
+ 	public boolean validate(final HttpResponse response, Context context) throws Throwable {
+		this.context = context;
+		
+ 		if(response == null)
 			throw new Exception("No response");
 		
 		int statusCode = response.getStatusLine().getStatusCode();
@@ -31,6 +35,11 @@ public class BaseResponseValidator extends ResponseValidator {
 			throw new FileNotFoundException("The target is requesting cannot be found!");
 
 		return false;
+	}
+
+	@Override
+	public Context getResults() {
+		return context;
 	}
     
 }

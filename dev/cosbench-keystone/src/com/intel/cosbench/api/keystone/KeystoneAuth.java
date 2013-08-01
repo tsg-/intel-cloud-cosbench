@@ -22,7 +22,7 @@ import static com.intel.cosbench.client.keystone.KeystoneConstants.*;
 import org.apache.http.client.HttpClient;
 
 import com.intel.cosbench.api.auth.*;
-import com.intel.cosbench.api.context.AuthContext;
+import com.intel.cosbench.api.context.Context;
 import com.intel.cosbench.client.http.HttpClientUtil;
 import com.intel.cosbench.client.keystone.*;
 import com.intel.cosbench.config.Config;
@@ -96,7 +96,7 @@ class KeystoneAuth extends NoneAuth {
     }
 
     @Override
-    public AuthContext login() {
+    public Context login() {
         super.login();
         try {
             client.login();
@@ -112,8 +112,8 @@ class KeystoneAuth extends NoneAuth {
         return createContext();
     }
 
-    private AuthContext createContext() {
-        AuthContext context = new AuthContext();
+    private Context createContext() {
+        Context context = new Context();
         context.put(AUTH_TOKEN_KEY, client.getKeystoneTokenId());
         context.put(STORAGE_URL_KEY, client.getServiceUrl(service));
         return context;

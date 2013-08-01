@@ -215,7 +215,7 @@ class MissionHandler {
     private AuthAPI createAuthApi(Auth auth, LogManager manager) {
         String type = auth.getType();
         Logger logger = manager.getLogger();
-        return authAPIs.getAuth(type, authConfig, logger);
+        return authAPIs.getAuth(type, ioengine, authConfig, logger);
     }
 
     private StorageAPI createStorageApi(Storage storage, LogManager manager) {

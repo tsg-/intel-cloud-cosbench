@@ -21,24 +21,27 @@ public class CountUpDownLatchWithLimit {
     }
 
     public void await() throws InterruptedException {
-        if (getActiveCount() < 0) {
+        if (isEmpty()) {
             return;
         }
 
         latch.await();
     }
     
-//    private boolean isEmpty() {
-//    	return sem.availablePermits() == limit;
-//    }
+    private boolean isEmpty() {
+    	return sem.availablePermits() >= limit;
+    }
     
     public long countDown() {
-    	sem.release();
 
-    	if(getActiveCount() <= 0) {
-            latch.countDown();
-        }
-        
+    	{
+	    	sem.release();
+	
+	    	if(isEmpty()) {
+	            latch.countDown();
+	        }
+    	}
+    	
         return getActiveCount();
     }
 
@@ -48,18 +51,20 @@ public class CountUpDownLatchWithLimit {
 
     public long countUp() {
 
-        if (latch.getCount() == 0) {
-            latch = new CountDownLatch(1);
-        }
-
-        try{
-        	long enter = System.currentTimeMillis();
-        	sem.acquire();
-        	System.out.println("Acquire Timestamp = " + (System.currentTimeMillis() - enter));
-        }catch(InterruptedException ie) {// expect to be interrupted by main thread when termination.
-        	sem.release(limit);
-        	latch.countDown();
-        }
+    	{
+	        if (latch.getCount() == 0) {
+	            latch = new CountDownLatch(1);
+	        }
+	
+	        try{
+	        	long enter = System.currentTimeMillis();
+	        	sem.acquire();
+	        	System.out.println("Acquire Timestamp = " + (System.currentTimeMillis() - enter));
+	        }catch(InterruptedException ie) {// expect to be interrupted by main thread when termination.
+	        	sem.release(limit);
+	        	latch.countDown();
+	        }
+    	}
         return getActiveCount();
     }
 

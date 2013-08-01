@@ -6,6 +6,7 @@ import static com.intel.cosbench.bench.Mark.newMark;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.intel.cosbench.api.context.ExecContext;
 import com.intel.cosbench.api.context.StatsContext;
@@ -45,12 +46,12 @@ public class WorkStats extends StatsCollector implements OperationListener {
     private static volatile boolean isFinished = false;
 
     private Status currMarks = new Status(); /* for snapshots */
-	private Status currMarksCloned = new Status();/* for snapshots */
+//	private Status currMarksCloned = new Status();/* for snapshots */
     private Status globalMarks = new Status(); /* for the final report */
     
     private WorkerContext workerContext;
     /* Each worker has its private required version */
-    private volatile int version = 0;
+    private AtomicInteger version = new AtomicInteger(0);
     
     public WorkStats(WorkerContext workerContext) {
     	this.workerContext = workerContext;
@@ -58,6 +59,7 @@ public class WorkStats extends StatsCollector implements OperationListener {
     
     @Override
     public synchronized void onSampleCreated(Sample sample) {
+    	curr = sample.getTimestamp().getTime();
         String type = getMarkType(sample.getOpType(), sample.getSampleType());
         currMarks.getMark(type).addToSamples(sample);
         if (lbegin >= begin && lbegin < end && curr > begin && curr <= end) {
@@ -109,15 +111,20 @@ public class WorkStats extends StatsCollector implements OperationListener {
     }
     
     public void doSummary() {
-//    	if(lrsample > frsample)
-//    	{
+    	if(hasSamples())
+    	{
 	        long window = lrsample - frsample;
 	        Report report = new Report();
-	        System.out.println("Mark Count = " + globalMarks.getAllMarks().length);
-	        for (Mark mark : globalMarks)
+//	        System.out.println("Mark Count = " + globalMarks.getAllMarks().length);
+	        for (Mark mark : globalMarks) {
+//				for (Sample sample : mark.getSamples()) {
+//					mark.addSample(sample);
+//				}
 	            report.addMetrics(Metrics.convert(mark, window));
+	        }
+	        
 	        workerContext.setReport(report);
-//    	}
+    	}
     }
     
     public void setOperatorRegistry(OperatorRegistry operatorRegistry) {
@@ -141,31 +148,34 @@ public class WorkStats extends StatsCollector implements OperationListener {
 	}
 
     public Snapshot doSnapshot() {
-		synchronized (currMarks) {
-			for (Mark mark : currMarks) {
-				currMarksCloned.addMark(mark.clone());
-				mark.clear();
-			}
-			version++;
-		}
+//		synchronized (currMarks) {
+//			for (Mark mark : currMarks) {
+//				currMarksCloned.addMark(mark.clone());
+//				mark.clear();
+//			}
+//		}
 
 		long window = System.currentTimeMillis() - lcheck;
+
 		Report report = new Report();
-		for (Mark mark : currMarksCloned) {
-			for (Sample sample : mark.getSamples()) {
-				mark.addSample(sample);
+		synchronized(currMarks) {
+			for (Mark mark : currMarks) {
+	//			for (Sample sample : mark.getSamples()) {
+	//				mark.addSample(sample);
+	//			}
+				report.addMetrics(Metrics.convert(mark, window));
+				mark.clear();
 			}
-			report.addMetrics(Metrics.convert(mark, window));
-			mark.clear();
 		}
 
 		Snapshot snapshot = new Snapshot(report);
 
-	    snapshot.setVersion(version);
-	    snapshot.setMinVersion(version);
-	    snapshot.setMaxVersion(version);
-    	
-//		workerContext.setSnapshot(snapshot);
+		int curVer = version.incrementAndGet();
+	    snapshot.setVersion(curVer);
+	    snapshot.setMinVersion(curVer);
+	    snapshot.setMaxVersion(curVer);
+
+//	    System.out.println("Snapshot " + curVer);
 		lcheck = System.currentTimeMillis();
 		
 		return snapshot;
