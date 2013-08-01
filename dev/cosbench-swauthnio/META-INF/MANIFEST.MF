@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: COSBench Swauth NIO Client Bundle
+Bundle-SymbolicName: cosbench-swauthnio
+Bundle-Version: 0.3.1.0
+Bundle-Vendor: intel
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.intel.cosbench.api.auth,
+ com.intel.cosbench.api.context,
+ com.intel.cosbench.api.ioengine,
+ com.intel.cosbench.api.nio.client,
+ com.intel.cosbench.api.nio.engine,
+ com.intel.cosbench.api.nio.util,
+ com.intel.cosbench.api.validator,
+ com.intel.cosbench.config,
+ com.intel.cosbench.log,
+ org.apache.http;version="[4.1.4,5.0.0)",
+ org.apache.http.client;version="[4.1.0,5.0.0)",
+ org.apache.http.client.methods;version="[4.1.0,5.0.0)",
+ org.apache.http.conn;version="[4.1.0,5.0.0)",
+ org.apache.http.entity;version="[4.1.0,5.0.0)",
+ org.apache.http.message;version="[4.1.0,5.0.0)",
+ org.apache.http.util;version="[4.1.0,5.0.0)"
