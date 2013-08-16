@@ -19,12 +19,9 @@ package com.intel.cosbench.driver.operator;
 
 import static com.intel.cosbench.driver.operator.Deleter.doDelete;
 
-import java.util.Date;
-
 import org.apache.commons.lang.StringUtils;
 
 import com.intel.cosbench.api.storage.StorageInterruptedException;
-import com.intel.cosbench.bench.*;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.driver.agent.AgentException;
 import com.intel.cosbench.driver.util.ObjectScanner;
@@ -37,7 +34,7 @@ import com.intel.cosbench.service.AbortedException;
  * @author ywang19, qzheng7
  * 
  */
-class Cleaner extends AbstractOperator {
+public class Cleaner extends AbstractOperator {
 
     public static final String OP_TYPE = "cleanup";
 
@@ -60,10 +57,10 @@ class Cleaner extends AbstractOperator {
         return OP_TYPE;
     }
 
-    @Override
-    public String getSampleType() {
-        return Deleter.OP_TYPE;
-    }
+//    @Override
+//    public String getSampleType() {
+//        return Deleter.OP_TYPE;
+//    }
 
     @Override
     protected void operate(int idx, int all, Session session) {
@@ -74,30 +71,30 @@ class Cleaner extends AbstractOperator {
         while ((path = objScanner.nextObjPath(path, idx, all)) != null) {
             if (deleteContainer && !StringUtils.equals(lastContainer, path[0])) {
                 if (lastContainer != null)
-                    doDispose(lastContainer, config, session);
+                    doDispose(opType, lastContainer, config, session);
                 lastContainer = path[0];
             }
             if (path[1] == null)
                 continue;
-            Sample sample = doDelete(path[0], path[1], config, session);
-            sample.setOpType(opType);
-            session.getListener().onSampleCreated(sample);
+            doDelete(opType, path[0], path[1], config, session);
+//            sample.setOpType(opType);
+//            session.getListener().onSampleCreated(sample);
         }
 
         if (deleteContainer && lastContainer != null)
-            doDispose(lastContainer, config, session);
+            doDispose(opType, lastContainer, config, session);
 
-        Date now = new Date();
-        Result result = new Result(now, opType, getSampleType(), true);
-        session.getListener().onOperationCompleted(result);
+//        Date now = new Date();
+//        Result result = new Result(now, opType, /*getSampleType(), */true);
+//        session.getListener().onOperationCompleted(result);
     }
 
-    public static void doDispose(String conName, Config config, Session session) {
+    public static void doDispose(final String opType, String conName, Config config, Session session) {
         if (Thread.interrupted())
             throw new AbortedException();
 
         try {
-            session.getApi().deleteContainer(conName, config);
+            session.getApi().deleteContainer(opType, conName, config);
         } catch (StorageInterruptedException sie) {
             throw new AbortedException();
         } catch (Exception e) {

@@ -70,9 +70,9 @@ public class SwiftAuthClient {
 				(response.getStatusLine().getStatusCode() < (HttpStatus.SC_OK + 100))
 				) {
                 authToken = response.getFirstHeader(X_AUTH_TOKEN) != null ? response
-                        .getFirstHeader(X_AUTH_TOKEN).getValue() : null;
+                        .getFirstHeader(X_AUTH_TOKEN).getValue() : "AUTH_xxx";
                 storageURL = response.getFirstHeader(X_STORAGE_URL) != null ? response
-                        .getFirstHeader(X_STORAGE_URL).getValue() : null;
+                        .getFirstHeader(X_STORAGE_URL).getValue() : "http://127.0.0.1:8080/";
                 return;
             }
             throw new SwiftAuthClientException(response.getStatusLine()

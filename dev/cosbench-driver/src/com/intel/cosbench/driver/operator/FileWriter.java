@@ -20,15 +20,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
 
 import com.intel.cosbench.api.storage.StorageInterruptedException;
-import com.intel.cosbench.bench.Result;
-import com.intel.cosbench.bench.Sample;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.driver.util.ContainerPicker;
 import com.intel.cosbench.driver.util.FilePicker;
@@ -80,10 +77,8 @@ class FileWriter extends AbstractOperator {
 
     @Override
     protected void operate(int idx, int all, Session session) {
-        Sample sample;
         if (!folder.canRead()) {
             doLogErr(session.getLogger(), "fail to perform file filewrite operation, can not read " + folder.getAbsolutePath());
-            sample = new Sample(new Date(), OP_TYPE, false);
         }
         Random random = session.getRandom();
         String containerName = contPicker.pickContName(random, idx, all);
@@ -105,47 +100,40 @@ class FileWriter extends AbstractOperator {
                 fis = new FileInputStream(listOfFiles[rand]);
             }
 
-            sample = doWrite(fis, length, containerName, filename, config, session);
+            doWrite(fis, length, containerName, filename, config, session);
         } catch (FileNotFoundException e) {
             doLogErr(session.getLogger(), "failed to perform file Write operation, file not found", e);
-            sample = new Sample(new Date(), OP_TYPE, false);
         } catch (ArrayIndexOutOfBoundsException e) {
             doLogErr(session.getLogger(), "failed to perform file Write operation, tried to put more files than exist", e);
-            sample = new Sample(new Date(), OP_TYPE, false);
         } catch (NoSuchAlgorithmException e) {
             doLogErr(session.getLogger(),
                     "failed to perform file Write operation, hash Algorithm MD5 not supported, deaktivate hashCheck, maybe?", e);
-            sample = new Sample(new Date(), OP_TYPE, false);
         }
 
-        session.getListener().onSampleCreated(sample);
-        Date now = sample.getTimestamp();
-        Result result = new Result(now, OP_TYPE, sample.isSucc());
-        session.getListener().onOperationCompleted(result);
     }
 
-    public static Sample doWrite(InputStream in, long length, String conName, String objName, Config config, Session session) {
+    public static void doWrite(InputStream in, long length, String conName, String objName, Config config, Session session) {
         if (Thread.interrupted())
             throw new AbortedException();
 
         CountingInputStream cin = new CountingInputStream(in);
 
-        long start = System.currentTimeMillis();
+//        long start = System.currentTimeMillis();
 
         try {
-            session.getApi().createObject(conName, objName, cin, length, config);
+            session.getApi().createObject(OP_TYPE, conName, objName, cin, length, config);
         } catch (StorageInterruptedException sie) {
             throw new AbortedException();
         } catch (Exception e) {
             session.getLogger().error("fail to perform write operation", e);
-            return new Sample(new Date(), OP_TYPE, false);
+//            return new Sample(new Date(), OP_TYPE, false);
         } finally {
             IOUtils.closeQuietly(cin);
         }
 
-        long end = System.currentTimeMillis();
-
-        Date now = new Date(end);
-        return new Sample(now, OP_TYPE, true, end - start, cin.getByteCount());
+//        long end = System.currentTimeMillis();
+//
+//        Date now = new Date(end);
+//        return new Sample(now, OP_TYPE, true, end - start, cin.getByteCount());
     }
 }

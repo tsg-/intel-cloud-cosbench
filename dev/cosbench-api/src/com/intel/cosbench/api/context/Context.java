@@ -18,15 +18,27 @@ limitations under the License.
 package com.intel.cosbench.api.context;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Context {
 
-    private Map<String, Object> params;
+    protected Map<String, Object> params;
 
     public Context() {
-        params = new HashMap<String, Object>();
+        params = new ConcurrentHashMap<String, Object>();
     }
 
+    public void putAll(Context info) {
+    	if(info == null) return;
+    	
+    	for(String key : info.keys()) {
+    		params.put(key,  info.get(key));
+    	}
+    }
+
+    public Set<String> keys() {
+    	return params.keySet();
+    }
     public void put(String key, Object val) {
         params.put(key, val);
     }
@@ -41,6 +53,10 @@ public class Context {
 
     public Object get(String key, Object defVal) {
         Object val = params.get(key);
+        if(val == null)
+        {
+        	System.out.println("Race Condition");
+        }
         return val == null ? defVal : val.toString();
     }
 

@@ -28,14 +28,16 @@ public class ProducerBufferSource extends ProducerSource<ByteBuffer> {
 
 	private ProducerRandomInputStream in;
 
-	private final int size;
+	private final long size;
 
-	public ProducerBufferSource(Random random,final int size) {
+	public ProducerBufferSource(Random random,final long size) {
 		super();
+		
 		this.size = size;
 //		this.in = in;
-		this.buffer = ByteBuffer.allocate(this.size);
-		in = new ProducerRandomInputStream(this.size,random,true,false);
+
+		in = new ProducerRandomInputStream(this.size, random,true,false);
+		this.buffer = ByteBuffer.wrap(in.getBuffer());
 	}
 
 	public void produceContent(final ContentEncoder encoder,

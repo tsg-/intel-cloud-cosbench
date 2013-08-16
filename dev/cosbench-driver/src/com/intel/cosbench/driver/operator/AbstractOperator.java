@@ -41,10 +41,10 @@ abstract class AbstractOperator implements Operator {
         this.config = config;
     }
 
-    @Override
-    public String getSampleType() {
-        return getOpType();
-    }
+//    @Override
+//    public String getSampleType() {
+//        return getOpType();
+//    }
 
     @Override
     public void operate(Session session) {

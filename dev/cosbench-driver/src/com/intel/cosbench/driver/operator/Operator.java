@@ -23,7 +23,7 @@ public interface Operator extends MapRegistry.Item {
 
     public String getOpType();
 
-    public String getSampleType();
+//    public String getSampleType();
 
     public void operate(Session session);
 

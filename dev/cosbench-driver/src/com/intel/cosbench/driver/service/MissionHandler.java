@@ -200,9 +200,9 @@ class MissionHandler {
         context.setIndex(idx);
         context.setMission(mission);
         context.setLogger(manager.getLogger());
-//        context.setIOEngineApi(createIOEngineApi(mission.getIOEngine(), manager));
         context.setAuthApi(createAuthApi(mission.getAuth(), manager));
         context.setStorageApi(createStorageApi(mission.getStorage(), manager));
+        
         return context;
     }
     
@@ -266,7 +266,10 @@ class MissionHandler {
     private List<Agent> createAuthAgents() {
         List<Agent> agents = new ArrayList<Agent>();
         for (WorkerContext workerContext : missionContext.getWorkerRegistry())
+        {
+        	System.out.println("WorkerContext=" + workerContext.getIndex() + ",AuthAPI=" + workerContext.getAuthApi() + ",StorageAPI="+ workerContext.getApi());
             agents.add(Agents.newAuthAgent(retry, workerContext));
+        }
         return agents;
     }
 
@@ -322,8 +325,11 @@ class MissionHandler {
 
     private List<Agent> createWorkAgents() {
         List<Agent> agents = new ArrayList<Agent>();
-        for (WorkerContext workerConext : missionContext.getWorkerRegistry())
-            agents.add(Agents.newWorkAgent(workerConext, missionContext));
+        for (WorkerContext workerContext : missionContext.getWorkerRegistry())
+        {
+        	System.out.println("WorkerContext=" + workerContext.getIndex() + ",AuthAPI=" + workerContext.getAuthApi() + ",StorageAPI="+ workerContext.getApi());
+            agents.add(Agents.newWorkAgent(workerContext, missionContext));
+        }
         return agents;
     }
 

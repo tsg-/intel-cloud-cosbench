@@ -17,11 +17,15 @@ limitations under the License.
 
 package com.intel.cosbench.api.storage;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+
+import org.apache.http.HttpResponse;
 
 import com.intel.cosbench.api.context.*;
 import com.intel.cosbench.api.ioengine.IOEngineAPI;
-import com.intel.cosbench.api.stats.StatsCollector;
+import com.intel.cosbench.api.stats.StatsListener;
 import com.intel.cosbench.api.validator.ResponseValidator;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.Logger;
@@ -31,12 +35,12 @@ public interface StorageAPI {
 	/**
 	 * 
 	 */
-	public void initCollector(StatsCollector collector);
+	public void setListener(StatsListener listener);
 	
 	/**
 	 * 
 	 */
-	public void initValidator(ResponseValidator validator);
+	public void setValidator(ResponseValidator validator);
 	
 	/**
 	 * Initializes a <code>IOEngine-API</code>.
@@ -88,7 +92,7 @@ public interface StorageAPI {
      *            - one AuthContext instance, normally, it's the result returned
      *            by the <code>login()</code> from the Auth-API.
      */
-    public void setAuthContext(Context info);
+    public void setAuthContext(ExecContext info);
 
     /**
      * Downloads an object from a container.
@@ -99,8 +103,11 @@ public interface StorageAPI {
      *            - the name of an object to be downloaded.
      * @param config
      *            - the configuration used for this operation.
+     * @return 
+     * @throws IOException 
+     * @throws StorageException 
      */
-    public InputStream getObject(String container, String object, Config config);
+    public void getObject(final String opType, String container, String object, Config config) throws StorageException, IOException;
 
     /**
      * Creates a new container.
@@ -109,8 +116,10 @@ public interface StorageAPI {
      *            - the name of a container.
      * @param config
      *            - the configuration used for this operation.
+     * @throws IOException 
+     * @throws StorageException 
      */
-    public void createContainer(String container, Config config);
+    public void createContainer(final String opType, String container, Config config) throws StorageException, IOException;
 
     /**
      * Uploads an object into a given container.
@@ -125,9 +134,11 @@ public interface StorageAPI {
      *            - the length of object content.
      * @param config
      *            - the configuration used for this operation.
+     * @throws IOException 
+     * @throws StorageException 
      */
-    public void createObject(String container, String object, InputStream data,
-            long length, Config config);
+    public void createObject(final String opType, String container, String object, InputStream data,
+            long length, Config config) throws StorageException, IOException;
 
     /**
      * Removes a given container.
@@ -136,8 +147,9 @@ public interface StorageAPI {
      *            - the name of a container to be removed.
      * @param config
      *            - the configuration used for this operation.
+     * @throws IOException 
      */
-    public void deleteContainer(String container, Config config);
+    public void deleteContainer(final String opType, String container, Config config) throws StorageException, IOException;
 
     /**
      * Deletes a given object.
@@ -148,13 +160,15 @@ public interface StorageAPI {
      *            - the name of an object to be deleted.
      * @param config
      *            - the configuration used for this operation.
+     * @throws IOException 
+     * @throws StorageException 
      */
-    public void deleteObject(String container, String object, Config config);
+    public void deleteObject(final String opType, String container, String object, Config config) throws StorageException, IOException;
 
-    // public Map<String, String> getMetadata(String container, String object,
-    // Config config);
-    //
-    // public void createMetadata(String container, String object, Map<String,
-    // String> map, Config config);
+     public Map<String, String> getMetadata(final String opType, String container, String object,
+     Config config);
+    
+     public void createMetadata(final String opType, String container, String object, Map<String,
+     String> map, Config config);
 
 }

@@ -33,7 +33,7 @@ public class ConsumerBufferSink extends ConsumerSink<ByteBuffer> {
 	
 	@Override
 	public void disconnect() throws IOException {	
-		System.out.println("Total Bytes Transferred = " + idx);
+//		System.out.println("Total Bytes Transferred = " + idx);
 	}
 	
 	@Override

@@ -5,8 +5,10 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.util.Asserts;
 
 import com.intel.cosbench.api.context.ExecContext;
-import com.intel.cosbench.api.stats.StatsCollector;
+import com.intel.cosbench.api.stats.StatsListener;
 import com.intel.cosbench.api.validator.ResponseValidator;
+import com.intel.cosbench.log.LogFactory;
+import com.intel.cosbench.log.Logger;
 
 
 /**
@@ -17,12 +19,11 @@ import com.intel.cosbench.api.validator.ResponseValidator;
  */
 public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 	private RequestThrottler throttler;	// the throttler is to throttle request rate.
-	
-//	private HttpHost target;
 	private ExecContext context;  // data exchange for async response handling.	
 
 	private ResponseValidator validator;
-	private StatsCollector collector;
+	private StatsListener collector;
+    private static final Logger LOGGER = LogFactory.getSystemLogger();
 	
 	public COSBFutureCallback(final RequestThrottler throttler) {
 		Asserts.notNull(throttler, "Request Throttler shouldn't be null.");
@@ -41,18 +42,22 @@ public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 		this.validator = validator;
 	}
 	
-	public COSBFutureCallback(final RequestThrottler throttler, ExecContext context, ResponseValidator validator, StatsCollector collector) {		
+	public COSBFutureCallback(final RequestThrottler throttler, ExecContext context, ResponseValidator validator, StatsListener collector) {		
 		this(throttler, context, validator);
 		this.collector = collector;		
 	}
 	
-	public void setValidator(ResponseValidator validator) {
-		this.validator = validator;
+	public ResponseValidator getValidator() {
+		return this.validator;
 	}
 	
-	public void setCollector(StatsCollector collector) {
-		this.collector = collector;
-	}
+//	public void setValidator(ResponseValidator validator) {
+//		this.validator = validator;
+//	}
+	
+//	public void setCollector(StatsListener collector) {
+//		this.collector = collector;
+//	}
 	
 //	public long countUp() {
 //		return throttler.countUp();
@@ -62,38 +67,52 @@ public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 		return throttler.countDown();
 	}
 	
-//	public void await() throws InterruptedException {
-//		if(throttler != null)
-//			throttler.await();
-//	}
+	public void await() throws InterruptedException {
+		if(throttler != null)
+			throttler.await();
+	}
 
 	@Override
     public void completed(final HttpResponse response) {    
-		context.response = response;
+		if(Thread.currentThread().getId() != context.threadId) {
+			LOGGER.debug("COMPLETED: ThreadID mismatch with request thread = {} vs response thread = {}.", context.threadId, Thread.currentThread().getId());
+		}
 		
-        System.out.println("COMPLETED: " + context.getUri() + "->" + response.getStatusLine() + "\t Outstanding Request is " + countDown());
-    	
-        boolean status = false;
-    	try {
-    		status = validator.validate(response, context);
+		context.response = response;
+
+		try {
+			if(validator != null)
+				context.status = validator.validate(response, context);
     	}catch(Throwable e) {
-    		System.out.println("Response can't pass validation with exception: " + e.getMessage());
+    		LOGGER.error("Response can't pass validation with exception: " + e.getMessage());
     		e.printStackTrace();
     	}finally {
-    		collector.onStats(context, status);    	
+    		collector.onStats(context, context.status);    	
+            LOGGER.info("COMPLETED: {} --> {}, with " + countDown() + " outstanding requests.", context.getUri(), response.getStatusLine()); 
     	}
+    	
     }
 
 	@Override
     public void failed(final Exception ex) {
-        System.out.println("FAILED: " + context.getUri() + "->" + ex.getMessage() + "\t Outstanding Request is " + countDown());
-//        ex.printStackTrace();
+		if(Thread.currentThread().getId() != context.threadId) {
+			LOGGER.debug("COMPLETED: ThreadID mismatch with request thread = {} vs response thread = {}.", context.threadId, Thread.currentThread().getId());
+		}
+		
+        ex.printStackTrace();
    		collector.onStats(context, false);  
+
+        LOGGER.info("FAILED: {} --> {}, with " + countDown() + " outstanding requests.", context.getUri(), ex.getMessage()); 
     }
 
 	@Override
     public void cancelled() {
-        System.out.println("CANCELLED: " + context.getUri() + " cancelled" + "\t Outstanding Request is " + countDown());
+		if(Thread.currentThread().getId() != context.threadId) {
+			LOGGER.debug("COMPLETED: ThreadID mismatch with request thread = {} vs response thread = {}.", context.threadId, Thread.currentThread().getId());
+		}
+
+   		collector.onStats(context, false);  
+        LOGGER.info("CANCELLED: {} --> {}, with " + countDown() + " outstanding requests.", context.getUri()); 
     }
     
 }

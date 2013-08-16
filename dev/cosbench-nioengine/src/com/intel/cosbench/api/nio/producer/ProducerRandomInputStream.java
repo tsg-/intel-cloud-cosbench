@@ -12,12 +12,12 @@ import com.intel.cosbench.log.Logger;
 /**
  * This class is to generate random data as input stream for data uploading.
  * 
- * @author ywang19, qzheng7
+ * @author ywang19
  * 
  */
 public class ProducerRandomInputStream extends NullInputStream {
 
-    private static final int SIZE = 4096; // 4 KB
+    private static final int SIZE = 1024 * 4; // 4 KB
 
     private byte[] buffer;
 
@@ -26,7 +26,7 @@ public class ProducerRandomInputStream extends NullInputStream {
 //    private int hashLen = 0;
 //    private byte[] hashBytes;
     private long size = 0;
-    private long processed = 0;
+    private long processed = 0; 
 
     private static Logger logger = LogFactory.getSystemLogger();
 
@@ -45,12 +45,16 @@ public class ProducerRandomInputStream extends NullInputStream {
 //        }
         this.size = size;
 
-        buffer = new byte[SIZE];
+        this.buffer = new byte[SIZE];
         if (isRandom)
             for (int i = 0; i < SIZE; i++)
                 buffer[i] = (byte) (RandomUtils.nextInt(random, 26) + 'a');
     }
 
+    public byte[] getBuffer() {
+    	return buffer;
+    }
+    
 	@Override
     protected int processByte() {
         throw new UnsupportedOperationException("do not read byte by byte");
@@ -60,13 +64,13 @@ public class ProducerRandomInputStream extends NullInputStream {
     protected void processBytes(byte[] bytes, int offset, int length) {
 
 //        if (!hashCheck) {
-            do {
+            while (length > 0) { // data copy completed
                 int segment = length > SIZE ? SIZE : length;
                 System.arraycopy(buffer, 0, bytes, offset, segment);
 
                 length -= segment;
                 offset += segment;
-            } while (length > 0); // data copy completed
+            }
 
 //        } else {
 //            if (length <= hashLen) {

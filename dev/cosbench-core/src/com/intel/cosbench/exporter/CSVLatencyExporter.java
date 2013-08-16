@@ -43,11 +43,11 @@ class CSVLatencyExporter extends AbstractLatencyExporter {
 
     private static void writeOpType(StringBuilder buffer, Metrics metrics) {
         String opt = metrics.getOpType();
-        String spt = metrics.getSampleType();
-        if (spt.equals(opt))
+//        String spt = metrics.getSampleType();
+//        if (spt.equals(opt))
             buffer.append(opt);
-        else
-            buffer.append(opt + '-' + spt);
+//        else
+//            buffer.append(opt + '-' + spt);
         buffer.append(',').append("(%)").append(',');
     }
 

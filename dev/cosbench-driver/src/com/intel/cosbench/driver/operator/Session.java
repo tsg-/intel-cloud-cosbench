@@ -19,7 +19,7 @@ package com.intel.cosbench.driver.operator;
 
 import java.util.Random;
 
-import com.intel.cosbench.api.stats.StatsCollector;
+import com.intel.cosbench.api.stats.StatsListener;
 import com.intel.cosbench.api.storage.StorageAPI;
 import com.intel.cosbench.log.Logger;
 
@@ -35,8 +35,7 @@ public interface Session {
 
     public Logger getLogger();
 
-    public StatsCollector getStats();
+    public StatsListener getStats();
 
-	public OperationListener getListener();
-
+//	public OperationListener getListener();
 }

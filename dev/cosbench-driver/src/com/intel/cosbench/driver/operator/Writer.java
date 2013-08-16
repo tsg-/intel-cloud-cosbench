@@ -24,7 +24,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
 
 import com.intel.cosbench.api.storage.StorageInterruptedException;
-import com.intel.cosbench.bench.*;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.driver.random.RandomInputStream;
 import com.intel.cosbench.driver.util.*;
@@ -73,38 +72,38 @@ class Writer extends AbstractOperator {
         String[] path = objPicker.pickObjPath(random, idx, all);
         RandomInputStream in = new RandomInputStream(size, random, isRandom,
                 hashCheck);
-        Sample sample = doWrite(in, len, path[0], path[1], config, session);
-        session.getListener().onSampleCreated(sample);
-        Date now = sample.getTimestamp();
-        Result result = new Result(now, OP_TYPE, sample.isSucc());
-        session.getListener().onOperationCompleted(result);
+        doWrite(OP_TYPE, in, len, path[0], path[1], config, session);
+//        session.getListener().onSampleCreated(sample);
+//        Date now = sample.getTimestamp();
+//        Result result = new Result(now, OP_TYPE, sample.isSucc());
+//        session.getListener().onOperationCompleted(result);
     }
 
-    public static Sample doWrite(InputStream in, long length, String conName,
+    public static void doWrite(final String opType, InputStream in, long length, String conName,
             String objName, Config config, Session session) {
         if (Thread.interrupted())
             throw new AbortedException();
 
         CountingInputStream cin = new CountingInputStream(in);
 
-        long start = System.currentTimeMillis();
+//        long start = System.currentTimeMillis();
 
         try {
             session.getApi()
-                    .createObject(conName, objName, cin, length, config);
+                    .createObject(opType, conName, objName, cin, length, config);
         } catch (StorageInterruptedException sie) {
             throw new AbortedException();
         } catch (Exception e) {
             session.getLogger().error("fail to perform write operation", e);
-            return new Sample(new Date(), OP_TYPE, false);
+//            return new Sample(new Date(), opType, false);
         } finally {
             IOUtils.closeQuietly(cin);
         }
 
-        long end = System.currentTimeMillis();
-
-        Date now = new Date(end);
-        return new Sample(now, OP_TYPE, true, end - start, cin.getByteCount());
+//        long end = System.currentTimeMillis();
+//
+//        Date now = new Date(end);
+//        return new Sample(now, OP_TYPE, true, end - start, cin.getByteCount());
     }
     /*
      * public static Sample doWrite(byte[] data, String conName, String objName,

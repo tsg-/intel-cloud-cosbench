@@ -3,6 +3,9 @@ package com.intel.cosbench.api.nio.client;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
+import com.intel.cosbench.log.LogFactory;
+import com.intel.cosbench.log.Logger;
+
 /**
  * This class helps to track the request issuing and completion, it also helps to throttle request rate not to over preset concurrency limit.
  * 
@@ -13,6 +16,8 @@ public class CountUpDownLatchWithLimit {
     CountDownLatch latch;
     final int limit;
     private final Semaphore sem;
+    
+    private static final Logger LOGGER = LogFactory.getSystemLogger();
 
     public CountUpDownLatchWithLimit(int limit) {
         this.latch = new CountDownLatch(1);
@@ -33,14 +38,11 @@ public class CountUpDownLatchWithLimit {
     }
     
     public long countDown() {
+    	sem.release();
 
-    	{
-	    	sem.release();
-	
-	    	if(isEmpty()) {
-	            latch.countDown();
-	        }
-    	}
+    	if(isEmpty()) {
+            latch.countDown();
+        }
     	
         return getActiveCount();
     }
@@ -50,21 +52,19 @@ public class CountUpDownLatchWithLimit {
     }
 
     public long countUp() {
+        if (latch.getCount() == 0) {
+            latch = new CountDownLatch(1);
+        }
 
-    	{
-	        if (latch.getCount() == 0) {
-	            latch = new CountDownLatch(1);
-	        }
-	
-	        try{
-	        	long enter = System.currentTimeMillis();
-	        	sem.acquire();
-	        	System.out.println("Acquire Timestamp = " + (System.currentTimeMillis() - enter));
-	        }catch(InterruptedException ie) {// expect to be interrupted by main thread when termination.
-	        	sem.release(limit);
-	        	latch.countDown();
-	        }
-    	}
+        try{
+        	long enter = System.currentTimeMillis();
+        	sem.acquire();
+        	LOGGER.debug("Acquiring latch takes {} milliseconds.", (System.currentTimeMillis() - enter));
+        }catch(InterruptedException ie) {// expect to be interrupted by main thread when termination.
+        	sem.release(limit);
+        	latch.countDown();
+        }
+
         return getActiveCount();
     }
 

@@ -31,7 +31,7 @@ public class Sample {
 
     private boolean succ;
     private String opType;
-    private String sampleType;
+//    private String sampleType;
 
     private long time; /* response time */
     private long bytes; /* bytes transferred */
@@ -47,7 +47,7 @@ public class Sample {
         this.time = time;
         this.bytes = bytes;
         this.opType = opType;
-        this.sampleType = opType;
+//        this.sampleType = opType;
     }
 
     public Date getTimestamp() {
@@ -74,13 +74,13 @@ public class Sample {
         this.opType = opType;
     }
 
-    public String getSampleType() {
-        return sampleType;
-    }
+//    public String getSampleType() {
+//        return sampleType;
+//    }
 
-    public void setSampleType(String sampleType) {
-        this.sampleType = sampleType;
-    }
+//    public void setSampleType(String sampleType) {
+//        this.sampleType = sampleType;
+//    }
 
     public long getTime() {
         return time;

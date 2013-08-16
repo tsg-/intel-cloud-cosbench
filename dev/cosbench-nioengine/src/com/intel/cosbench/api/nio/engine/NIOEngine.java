@@ -96,9 +96,7 @@ public class NIOEngine extends NoneIOEngine {
     public NIOClient newClient(int concurrency) {
     	return new NIOClient(getConnPool(), concurrency);
     }
-    
-    
-    
+        
     @Override
     public boolean init(Config config, Logger logger) {
         super.init(config, logger);
@@ -150,7 +148,7 @@ public class NIOEngine extends NoneIOEngine {
     @Override
     public boolean shutdown() throws IOEngineException {
     	
-    	try {
+    	try {    		
     		ioReactor.shutdown();
     	}catch(IOException e) {
     		logger.error("Failed to shut down I/O Reactor.");

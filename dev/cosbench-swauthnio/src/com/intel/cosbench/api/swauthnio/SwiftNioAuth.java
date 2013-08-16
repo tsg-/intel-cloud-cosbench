@@ -28,8 +28,10 @@ import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.message.BasicHttpRequest;
 
 import com.intel.cosbench.api.auth.*;
-import com.intel.cosbench.api.context.Context;
+import com.intel.cosbench.api.context.ExecContext;
 import com.intel.cosbench.api.nio.client.NIOClient;
+import com.intel.cosbench.api.nio.engine.NIOEngine;
+import com.intel.cosbench.api.nio.util.NIOEngineUtil;
 import com.intel.cosbench.api.validator.ResponseValidator;
 import com.intel.cosbench.client.swauthnio.*;
 import com.intel.cosbench.config.Config;
@@ -43,7 +45,6 @@ import com.intel.cosbench.log.Logger;
  */
 class SwiftNioAuth extends NoneAuth {
     private NIOClient nioclient;
-    private ResponseValidator validator;
 
     /* account info */
     private String url;
@@ -52,6 +53,8 @@ class SwiftNioAuth extends NoneAuth {
 
     /* connection setting */
     private int timeout;
+    
+    private ResponseValidator validator;
 
     public SwiftNioAuth() {
         /* empty */
@@ -76,12 +79,12 @@ class SwiftNioAuth extends NoneAuth {
         logger.debug("using auth config: {}", parms);
 
         if(ioengine != null) {
-        	nioclient = (NIOClient)ioengine.newClient();
+        	nioclient = NIOEngineUtil.newClient((NIOEngine)ioengine);
         	validator = new SwiftAuthResponseValidator();
         	nioclient.setValidator(validator);
-            logger.info("swift client has been initialized");
+        	logger.info("swauth client has been initialized");
         }else {
-            logger.error("swift i/o engine is not correctly initialized, please check it first.");
+            logger.error("swauth i/o engine is not correctly initialized, please check it first.");
         }
         
         logger.debug("swauth client has been initialized");
@@ -93,11 +96,12 @@ class SwiftNioAuth extends NoneAuth {
     }
 
     @Override
-    public Context login() {
+    public ExecContext login() {
         super.login();
+
         try {
            	// construct request.
-        		System.out.println("SwAuthNio: url=" + url);
+        		logger.debug("Auth: url={}", url);
                 URI uri = URI.create(url);
                 
                 BasicHttpRequest method = nioclient.makeHttpGet(uri.getPath());
@@ -105,27 +109,35 @@ class SwiftNioAuth extends NoneAuth {
                 method.setHeader(X_STORAGE_PASS, password);  
                 
                 // issue request.
-        		HttpHost target = new HttpHost(uri.getHost(), uri.getPort(), "http");
+        		HttpHost target = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
 
         		if(nioclient == null)
         		{
-        			System.err.println("nio client is not initialized yet!");
+        			logger.error("nio client is not initialized yet!");
         			return null;
         		}
-                nioclient.GET_withWait(target, method);
-                System.out.println("Request is issued!");
+        		
+        		ExecContext context = new ExecContext(target, method, null, "login", 0);
+        		nioclient.GETorHEAD(target, method, context, true);
+//        		validator.validate(response, context);
+
+        		return context;
         } catch (SocketTimeoutException ste) {
+        	logger.error("Auth: SocketTimeoutException");
             throw new AuthTimeoutException(ste);
         } catch (ConnectTimeoutException cte) {
+        	logger.error("Auth: ConnectTimeoutException");
             throw new AuthTimeoutException(cte);
         } catch (InterruptedIOException ie) {
+        	logger.error("Auth: InterruptedException");
             throw new AuthInterruptedException(ie);
         } catch (SwiftAuthClientException se) {
+        	logger.error("Auth: Swift Authentication Client Exception");
             throw new AuthException(se.getMessage(), se);
         } catch (Exception e) {
+        	logger.error("Auth: Unknown Exception.");
             throw new AuthException(e);
         }
-        return validator.getResults();
     }
 
 }

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: COSBench NIOEngine Client Bundle
 Bundle-SymbolicName: cosbench-nioengine
-Bundle-Version: 0.3.1.0
+Bundle-Version: 0.3.2.0
 Bundle-Vendor: intel
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.intel.cosbench.api.nio.client,
@@ -12,6 +12,7 @@ Export-Package: com.intel.cosbench.api.nio.client,
  com.intel.cosbench.api.nio.util
 Import-Package: com.intel.cosbench.api.context,
  com.intel.cosbench.api.ioengine,
+ com.intel.cosbench.api.nio.consumer,
  com.intel.cosbench.api.nio.engine,
  com.intel.cosbench.api.stats,
  com.intel.cosbench.api.validator,

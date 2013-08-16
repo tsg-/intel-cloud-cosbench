@@ -21,7 +21,6 @@ import java.util.List;
 
 import com.intel.cosbench.api.auth.*;
 import com.intel.cosbench.api.ioengine.IOEngineAPI;
-import com.intel.cosbench.api.storage.StorageAPI;
 import com.intel.cosbench.config.*;
 import com.intel.cosbench.log.*;
 

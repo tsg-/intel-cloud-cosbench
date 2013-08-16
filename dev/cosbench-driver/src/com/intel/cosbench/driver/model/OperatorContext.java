@@ -48,9 +48,9 @@ public class OperatorContext implements Item {
         return operator.getOpType();
     }
 
-    public String getSampleType() {
-        return operator.getSampleType();
-    }
+//    public String getSampleType() {
+//        return operator.getSampleType();
+//    }
 
     public Operator getOperator() {
         return operator;

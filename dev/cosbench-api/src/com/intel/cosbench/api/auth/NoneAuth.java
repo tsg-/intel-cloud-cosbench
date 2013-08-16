@@ -21,7 +21,7 @@ import static com.intel.cosbench.api.auth.AuthConstants.*;
 
 import com.intel.cosbench.api.context.*;
 import com.intel.cosbench.api.ioengine.IOEngineAPI;
-import com.intel.cosbench.api.stats.StatsCollector;
+import com.intel.cosbench.api.stats.StatsListener;
 import com.intel.cosbench.api.validator.ResponseValidator;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.Logger;
@@ -37,11 +37,11 @@ public class NoneAuth implements AuthAPI {
 
     public static final String API_TYPE = "none";
 
-    protected Context parms;
+    protected volatile Context parms;
     protected Logger logger;
     
     protected IOEngineAPI ioengine;
-    protected StatsCollector collector;
+    protected StatsListener listener;
     protected ResponseValidator validator;
 
     /* configurations */
@@ -52,12 +52,12 @@ public class NoneAuth implements AuthAPI {
     }
 
     @Override
-    public void initCollector(StatsCollector collector) {
-    	this.collector = collector;
+    public void setListener(StatsListener listener) {
+    	this.listener = listener;
     }
 
     @Override
-    public void initValidator(ResponseValidator validator) {
+    public void setValidator(ResponseValidator validator) {
     	this.validator = validator;
     }
     
@@ -87,7 +87,7 @@ public class NoneAuth implements AuthAPI {
     }
 
     @Override
-    public Context login() {
+    public ExecContext login() {
         if (logging)
             logger.info("perform authentication");
         return null;

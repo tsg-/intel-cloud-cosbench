@@ -1,9 +1,12 @@
 package com.intel.cosbench.api.nio.client;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Random;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -37,13 +40,13 @@ import com.intel.cosbench.api.ioengine.IOClient;
 import com.intel.cosbench.api.nio.consumer.ConsumerBufferSink;
 import com.intel.cosbench.api.nio.consumer.ConsumerFileSink;
 import com.intel.cosbench.api.nio.consumer.ZCConsumer;
-import com.intel.cosbench.api.nio.producer.BaseZCAsyncRequestProducer;
-import com.intel.cosbench.api.nio.producer.ProducerBufferSource;
-import com.intel.cosbench.api.nio.producer.ZCProducer;
-import com.intel.cosbench.api.stats.BaseStatsCollector;
-import com.intel.cosbench.api.stats.StatsCollector;
+import com.intel.cosbench.api.nio.producer.*;
+import com.intel.cosbench.api.stats.BaseStatsListener;
+import com.intel.cosbench.api.stats.StatsListener;
 import com.intel.cosbench.api.validator.BaseResponseValidator;
 import com.intel.cosbench.api.validator.ResponseValidator;
+import com.intel.cosbench.log.LogFactory;
+import com.intel.cosbench.log.Logger;
 
 
 /**
@@ -61,24 +64,19 @@ public class NIOClient implements IOClient {
 	
 	private final RequestThrottler throttler;
 	private ResponseValidator validator;
-	private StatsCollector collector;
+	private StatsListener collector;
 	
-	private final String doc_root = "./doc_root";
+	private final int BUFFER_SIZE;
+    private static final Logger LOGGER = LogFactory.getSystemLogger();
 
-	public ResponseValidator getValidator() {
-		return validator;
-	}
-
+    @Override
 	public void setValidator(ResponseValidator validator) {
 		this.validator = validator;
 	}
 	
-	public StatsCollector getCollector() {
-		return collector;
-	}
-
-	public void setCollector(StatsCollector collector) {
-		this.collector = collector;
+    @Override
+	public void setListener(StatsListener listener) {
+		this.collector = listener;
 	}
 
 	public NIOClient(BasicNIOConnPool connPool, int concurrency)
@@ -88,8 +86,9 @@ public class NIOClient implements IOClient {
 		
 		this.connPool = connPool;
 		this.throttler = new RequestThrottler(concurrency);
-		this.validator = new BaseResponseValidator();
-		this.collector = new BaseStatsCollector();
+//		this.validator = new BaseResponseValidator();
+		this.collector = new BaseStatsListener();
+		this.BUFFER_SIZE = 8192;
 		
         HttpProcessor httpproc = HttpProcessorBuilder.create()
                 // Use standard client-side protocol interceptors
@@ -103,11 +102,11 @@ public class NIOClient implements IOClient {
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 3000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
+            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, BUFFER_SIZE)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpTest/1.1")
-        	.setParameter(CoreProtocolPNames.USER_AGENT, "AsynCore/1.1");
+        	.setParameter(CoreProtocolPNames.USER_AGENT, "COSBench/0.3");
 //        	.setParameter(ConnRoutePNames.DEFAULT_PROXY, "http://proxy-prc.intel:com:911");
         
         this.requester = new HttpAsyncRequester(httpproc,
@@ -124,6 +123,13 @@ public class NIOClient implements IOClient {
 	{
 		if(throttler != null)
 			throttler.await();
+	}
+	
+	public BasicHttpRequest makeHttpHead(String path)
+	{
+		BasicHttpRequest request = new BasicHttpRequest("HEAD", path);
+		
+		return request;
 	}
 	
 	public BasicHttpRequest makeHttpGet(String path)
@@ -151,132 +157,131 @@ public class NIOClient implements IOClient {
 	{
 		return new COSBFutureCallback(throttler, context, validator, collector);
 	}
+
+	public HttpResponse GETorHEAD(HttpHost target, HttpRequest request, ExecContext context) throws Exception {
+		return GETorHEAD(target, request, context, false);
+	}
 	
-	public void GET(HttpHost target, HttpRequest request) throws Exception {
-        // Create HTTP requester
-//    	long start = System.currentTimeMillis();
-    	HttpCoreContext coreContext = HttpCoreContext.create();
-    	String uri = request.getRequestLine().getUri();
-    	String down_path = doc_root + "/download/" + uri;
+	private HttpResponse inSync(Future<HttpResponse> future, COSBFutureCallback futureCallback) {
+    	try {
+        	HttpResponse response = future.get();
+            futureCallback.completed(response); // getValidator().validate(response, context);      
+            
+            return response;
+    	}catch(Exception ex) {
+    		futureCallback.failed(ex);
+    	}
     	
-//    	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
-    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerBufferSink(ByteBuffer.allocate(8192)));
+    	return null;
+	}
+
+	public HttpResponse GETorHEAD(HttpHost target, HttpRequest request, ExecContext context, final boolean blocking) throws Exception {
+        // Create HTTP requester
+    	HttpCoreContext coreContext = HttpCoreContext.create();
+    	
+    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerBufferSink(ByteBuffer.allocate(BUFFER_SIZE)));
    		
  		// initialize future callback.
-    	COSBFutureCallback futureCallback = makeFutureCallback(new ExecContext(target, request, null));
-//    	futureCallback.countUp();
-        Future<HttpResponse> future = requester.execute(
-                new BasicAsyncRequestProducer(target, request),
-                consumer,
-                connPool,
-                coreContext,
-                futureCallback);
-
-        if(future.isDone()) {
-        	System.out.println("Request is done.");
-        }
-//        future.get();
-//        long end = System.currentTimeMillis();
-//        System.out.println("Elapsed Time: " + (end-start) + " ms.");
-    }
-
-	public void GET_withWait(HttpHost target, HttpRequest request) throws Exception {
-        // Create HTTP requester
-//    	long start = System.currentTimeMillis();
-    	
-    	HttpCoreContext coreContext = HttpCoreContext.create();
-    	String uri = request.getRequestLine().getUri();
-    	String down_path = doc_root + "/download/" + uri;
-    	
-//    	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
-    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerBufferSink(ByteBuffer.allocate(8192)));
-   		
- 		// initialize future callback.
-    	COSBFutureCallback futureCallback = makeFutureCallback(new ExecContext(target, request, null));
-        Future<HttpResponse> future = requester.execute(
-                new BasicAsyncRequestProducer(target, request),
-                consumer,
-                connPool,
-                coreContext,
-                futureCallback);
-
-        if(future.isDone()) {
-        	System.out.println("Request is done.");
-        }
-        	
-        future.get();
+//    	COSBFutureCallback futureCallback = makeFutureCallback(new ExecContext(target, request, null, context.operator, 0));
+ 		COSBFutureCallback futureCallback = makeFutureCallback(context);
         
-//        long end = System.currentTimeMillis();
-//        
-//        System.out.println("Elapsed Time: " + (end-start) + " ms.");
+    	Future<HttpResponse> future = requester.execute(
+                new BasicAsyncRequestProducer(target, request),
+                consumer,
+                connPool,
+                coreContext,
+                futureCallback);
+        
+        if(future.isDone()) {
+	    	LOGGER.info("Request is done.");
+	    	return future.get();
+	    }
+        
+        if(blocking)
+        {
+        	try {
+	        	HttpResponse response = future.get();
+	            futureCallback.completed(response); // getValidator().validate(response, context);      
+	            
+	            return response;
+        	}catch(ExecutionException ex) {
+        		futureCallback.failed(ex);
+        	}catch(CancellationException ex) {
+        		futureCallback.cancelled();
+        	}
+        }
+         
+        return null;
     }
 
-	public void PUT(HttpHost target, HttpEntityEnclosingRequest request) throws Exception {
+	public HttpResponse PUT(HttpHost target, HttpEntityEnclosingRequest request, ExecContext context) throws Exception {
+		return PUT(target, request, context, false);
+	}
 	
-//    	long start = System.currentTimeMillis();
-    	
+	public HttpResponse PUT(HttpHost target, HttpEntityEnclosingRequest request, ExecContext context, final boolean blocking) throws Exception {
+	
     	HttpCoreContext coreContext = HttpCoreContext.create();
     	String uri = request.getRequestLine().getUri();
-    	String down_path = doc_root + "/download/" + uri;
-    	String up_path = doc_root + "/upload/" + uri;
-    	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
-//    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerBufferSink(ByteBuffer.allocate(8192)));
+
+//    	String up_path = doc_root + "/upload/" + uri;
+//		String down_path = doc_root + "/download/" + uri;
+//    	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
     	
-
-         final ContentType contentType = ContentType.TEXT_PLAIN;
-         
-         // for File based producer.
-// 		final File file = new File(up_path);
-//		ZCProducer<File> producer = null;
-// 		if (file.canRead()) {
-// 			producer = new ZCProducer<File>(new ProducerFileSource(file),
-// 					URI.create(up_path), contentType);
-// 		}
-
+    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerBufferSink(ByteBuffer.allocate(BUFFER_SIZE)));
          // for buffer based producer:
- 		Random random = new Random(26);
- 		ZCProducer<ByteBuffer> producer = new ZCProducer<ByteBuffer>(new ProducerBufferSource(random, 1024*128), URI.create(up_path), contentType);
- 		
+ 		final Random random = new Random(System.currentTimeMillis());
+        final ContentType contentType = ContentType.TEXT_PLAIN;
+        LOGGER.info("Uploading Object with size={}", context.length);
+ 		ZCProducer<ByteBuffer> producer = new ZCProducer<ByteBuffer>(context.length > 0? new ProducerBufferSource(random, context.length) : null);
  		request.setEntity(producer.getEntity());
     	
  		// initialize future callback.
- 		COSBFutureCallback futureCallback = makeFutureCallback(new ExecContext(target, request, null));
-//		futureCallback.setTarget(target);
-//    	futureCallback.countUp();
+ 		COSBFutureCallback futureCallback = makeFutureCallback(context);
         Future<HttpResponse> future = requester.execute(
         		new BaseZCAsyncRequestProducer(target, request, producer),
                 consumer,
-//                new BasicAsyncResponseConsumer() ,
                 connPool,
                 coreContext,
-                // Handle HTTP response from a callback
                 futureCallback);
         
-        if(future.isDone()) {
-        	System.out.println("Request is done.");
-        }
-        	
-//        future.get();
-        
-//        long end = System.currentTimeMillis();
-//        
-//        System.out.println("Elapsed Time: " + (end-start) + " ms.");
+	    if(future.isDone()) {
+	    	LOGGER.info("Request is done.");
+	    	return future.get();
+	    }
+	    
+	    if(blocking)
+	    {
+        	try {
+	        	HttpResponse response = future.get();
+	            futureCallback.completed(response); // getValidator().validate(response, context);      
+	            
+	            return response;
+        	}catch(ExecutionException ex) {
+        		futureCallback.failed(ex);
+        	}catch(CancellationException ex) {
+        		futureCallback.cancelled();
+        	}
+	    }
+			
+	    return null;
     }
-	
-	public void DELETE(HttpHost target, HttpRequest request) throws Exception {
-        // Create HTTP requester
-//    	long start = System.currentTimeMillis();
+
+	public HttpResponse DELETE(HttpHost target, HttpRequest request, ExecContext context) throws Exception {
+		return DELETE(target, request, context, false);
+	}
+
+	public HttpResponse DELETE(HttpHost target, HttpRequest request, ExecContext context, final boolean blocking) throws Exception {
     	
     	HttpCoreContext coreContext = HttpCoreContext.create();
     	String uri = request.getRequestLine().getUri();
-    	String down_path = doc_root + "/" + uri;
     	
-    	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
-   		
+//    	String down_path = doc_root + "/" + uri;    	
+//    	final ZCConsumer<File> consumer = new ZCConsumer<File>(new ConsumerFileSink(new File(down_path)));        	
+    	final ZCConsumer<ByteBuffer> consumer = new ZCConsumer<ByteBuffer>(new ConsumerBufferSink(ByteBuffer.allocate(BUFFER_SIZE)));
+
  		// initialize future callback.
-    	COSBFutureCallback futureCallback = makeFutureCallback(new ExecContext(target, request, null));
-//		futureCallback.setTarget(target);
-//    	futureCallback.countUp();
+    	COSBFutureCallback futureCallback = makeFutureCallback(context);
+
         Future<HttpResponse> future = requester.execute(
         		new BasicAsyncRequestProducer(target, request),
                 consumer,
@@ -285,20 +290,31 @@ public class NIOClient implements IOClient {
                 futureCallback);
 
         if(future.isDone()) {
-        	System.out.println("Request is done.");
+        	LOGGER.info("Request is done.");
+        	return future.get();
         }
-        	
-//        future.get();
         
-//        long end = System.currentTimeMillis();
-//        
-//        System.out.println("Elapsed Time: " + (end-start) + " ms.");
+        if(blocking)
+        {
+        	try {
+	        	HttpResponse response = future.get();
+	            futureCallback.completed(response); // getValidator().validate(response, context);      
+	            
+	            return response;
+        	}catch(ExecutionException ex) {
+        		futureCallback.failed(ex);
+        	}catch(CancellationException ex) {
+        		futureCallback.cancelled();
+        	}
+        }
+        
+		return null;
     }
 
-	@Override
-	public void init(ResponseValidator validator, StatsCollector collector) {
-		this.validator = validator;
-		this.collector = collector;
-	}
+//	@Override
+//	public void init(ResponseValidator validator, StatsListener collector) {
+//		this.validator = validator;
+//		this.collector = collector;
+//	}
 
 }

@@ -33,11 +33,11 @@ public class Mark implements Cloneable, Item {
     private String name; /* mark id */
 
     private String opType; /* operation type */
-    private String sampleType; /* sample type */
+//    private String sampleType; /* sample type */
 
-    private int opCount; /* number of successful operations */
+//    private int opCount; /* number of successful operations */
     private int sampleCount; /* number of successful samples */
-    private int totalOpCount; /* number of total operations */
+//    private int totalOpCount; /* number of total operations */
     private int totalSampleCount; /* number of total samples */
 
     private long rtSum; /* total response time */
@@ -78,21 +78,21 @@ public class Mark implements Cloneable, Item {
         this.opType = opType;
     }
 
-    public String getSampleType() {
-        return sampleType;
-    }
+//    public String getSampleType() {
+//        return sampleType;
+//    }
+//
+//    public void setSampleType(String sampleType) {
+//        this.sampleType = sampleType;
+//    }
 
-    public void setSampleType(String sampleType) {
-        this.sampleType = sampleType;
-    }
-
-    public int getOpCount() {
-        return opCount;
-    }
-
-    public void setOpCount(int opCount) {
-        this.opCount = opCount;
-    }
+//    public int getOpCount() {
+//        return opCount;
+//    }
+//
+//    public void setOpCount(int opCount) {
+//        this.opCount = opCount;
+//    }
 
     public int getSampleCount() {
         return sampleCount;
@@ -102,12 +102,8 @@ public class Mark implements Cloneable, Item {
 //        this.sampleCount = sampleCount;
 //    }
 
-    public int getTotalOpCount() {
-        return totalOpCount;
-    }
-
-//    public void setTotalOpCount(int totalOpCount) {
-//        this.totalOpCount = totalOpCount;
+//    public int getTotalOpCount() {
+//        return totalOpCount;
 //    }
 
     public int getTotalSampleCount() {
@@ -135,20 +131,20 @@ public class Mark implements Cloneable, Item {
 //    }
 
     public void clear() {
-        opCount = 0;
+//        opCount = 0;
         sampleCount = 0;
-        totalOpCount = 0;
+//        totalOpCount = 0;
         totalSampleCount = 0;
         rtSum = 0;
         byteCount = 0;
 		samples.clear();
     }
 
-	public void addToSamples(Sample sample) {
-		addSample(sample);
-		samples.add(sample);
-		System.out.println("Sample count in Global Mark is " + samples.size());
-	}
+//	public void addToSamples(Sample sample) {
+//		addSample(sample);
+//		samples.add(sample);
+////		System.out.println("Sample count in Global Mark is " + samples.size());
+//	}
 
 	public Vector<Sample> getSamples() {
 		return samples;
@@ -162,25 +158,27 @@ public class Mark implements Cloneable, Item {
             byteCount += sample.getBytes();
         }
         
+		samples.add(sample);
+		
         totalSampleCount += 1;
     }
 
-    public void addOperation(Result result) {
-        if (result.isSucc())
-            opCount += 1;
-        totalOpCount += 1;
-    }
+//    public void addOperation(Result result) {
+//        if (result.isSucc())
+//            opCount += 1;
+//        totalOpCount += 1;
+//    }
 
-    public static String getMarkType(String opType, String sampleType) {
-        return opType + "-" + sampleType;
-    }
+//    public static String getMarkType(String opType, String sampleType) {
+//        return opType + "-" + sampleType;
+//    }
 
     public static Mark newMark(String type) {
-        String[] types = type.split("-");
+//        String[] types = type.split("-");
         Mark mark = new Mark();
         mark.setName(type);
-        mark.setOpType(types[0]);
-        mark.setSampleType(types[1]);
+        mark.setOpType(type);
+//        mark.setSampleType(types[1]);
         return mark;
     }
 }

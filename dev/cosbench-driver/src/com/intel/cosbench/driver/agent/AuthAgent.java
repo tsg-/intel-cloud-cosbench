@@ -23,6 +23,7 @@ import org.apache.commons.lang.math.RandomUtils;
 
 import com.intel.cosbench.api.auth.*;
 import com.intel.cosbench.api.context.Context;
+import com.intel.cosbench.api.context.ExecContext;
 import com.intel.cosbench.api.storage.StorageAPI;
 import com.intel.cosbench.log.Logger;
 import com.intel.cosbench.service.AbortedException;
@@ -52,6 +53,7 @@ class AuthAgent extends AbstractAgent {
              */
             StorageAPI storageApi = workerContext.getStorageApi();
             storageApi.setAuthContext(login());
+
         } catch (AuthInterruptedException ie) {
             throw new AbortedException();
         } catch (AuthBadException be) {
@@ -72,7 +74,7 @@ class AuthAgent extends AbstractAgent {
         logger.debug("worker {} has been successfully authed", idx);
     }
 
-    private Context login() {
+    private ExecContext login() {
         Logger logger = getMissionLogger();
         AuthAPI authApi = workerContext.getAuthApi();
         int attempts = 0;
@@ -80,10 +82,13 @@ class AuthAgent extends AbstractAgent {
             try {
                 return authApi.login();
             } catch (AuthInterruptedException ie) {
+            	System.err.println("AuthError");
                 throw ie; // do not mask this one
             } catch (AuthBadException be) {
+            	System.err.println("AuthError");
                 throw be; // do not mask this one, either
             } catch (AuthException e) {
+            	System.err.println("AuthError");
                 logger.error("unable to login, will try again later", e);
                 sleepForSometime();
             }

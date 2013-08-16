@@ -7,20 +7,24 @@ import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HTTP;
 
 
-public class ExecContext extends Context implements StatsContext {
+public class ExecContext extends Context {
 	public long timestamp;
 	public HttpHost target;
 	public HttpRequest request;
 	public HttpResponse response;
-	public boolean composited;
+	public long threadId;
+	public String operator;
+	public long length;
+	public boolean status;
 	
-//	public long size;
-	
-	public ExecContext(final HttpHost target,final HttpRequest request,final HttpResponse response) {
+	public ExecContext(final HttpHost target,final HttpRequest request,final HttpResponse response, final String operator, final long length) {
 		this.timestamp = System.currentTimeMillis();
+		this.threadId = Thread.currentThread().getId();
+		this.operator = operator;
 		this.target = target;
 		this.request = request;
 		this.response = response;
+		this.length = length;
 	}
 	
 	public String getUri() {
@@ -30,13 +34,17 @@ public class ExecContext extends Context implements StatsContext {
 			return "null";
 	}
 	
+	public String getOpType() {
+		return operator;
+	}
+	
 	public long getLength() {
 		if(response != null) {
 			Header header = response.getFirstHeader(HTTP.CONTENT_LEN);
-			if(header != null) 
-				return Long.parseLong(header.getValue());				
+			if(header != null)
+				this.length = Long.parseLong(header.getValue());
 		}
 		
-		return 0;			
+		return length;			
 	}
 }

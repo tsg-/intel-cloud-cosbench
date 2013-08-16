@@ -62,11 +62,11 @@ class CSVMatrixExporter extends AbstractMatrixExporter {
         String uuid = workload.getId() + '-' + stage.getId() + '-' + idx;
         buffer.append(uuid).append(',');
         String opt = metrics.getOpType();
-        String spt = metrics.getSampleType();
-        if (spt.equals(opt))
+//        String spt = metrics.getSampleType();
+//        if (spt.equals(opt))
             buffer.append(opt);
-        else
-            buffer.append(opt + '-' + spt);
+//        else
+//            buffer.append(opt + '-' + spt);
         buffer.append(',');
         buffer.append(metrics.getSampleCount()).append(',');
         buffer.append(metrics.getByteCount()).append(',');

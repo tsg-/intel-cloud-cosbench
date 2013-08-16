@@ -13,22 +13,22 @@
     <tr>
       <#assign allMetrics = ssInfo.report.allMetrics >
       <#list allMetrics as mInfo >
-        <td>${mInfo.sampleType}</td>
+        <td>${mInfo.opType}</td>
       </#list>
       <#list allMetrics as mInfo >
-        <td>${mInfo.sampleType}</td>
+        <td>${mInfo.opType}</td>
       </#list>
       <#list allMetrics as mInfo >
-        <td>${mInfo.sampleType}</td>
+        <td>${mInfo.opType}</td>
       </#list>
       <#list allMetrics as mInfo >
-        <td>${mInfo.sampleType}</td>
+        <td>${mInfo.opType}</td>
       </#list>
       <#list allMetrics as mInfo >
-        <td>${mInfo.sampleType}</td>
+        <td>${mInfo.opType}</td>
       </#list>
       <#list allMetrics as mInfo >
-        <td>${mInfo.sampleType}</td>
+        <td>${mInfo.opType}</td>
       </#list>
     </tr>
     <#break>

@@ -19,13 +19,11 @@ package com.intel.cosbench.driver.operator;
 
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.*;
 
 import com.intel.cosbench.api.storage.StorageInterruptedException;
-import com.intel.cosbench.bench.*;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.driver.util.*;
 import com.intel.cosbench.service.AbortedException;
@@ -64,14 +62,10 @@ public class Reader extends AbstractOperator {
     protected void operate(int idx, int all, Session session) {
         String[] path = objPicker.pickObjPath(session.getRandom(), idx, all);
         NullOutputStream out = new NullOutputStream();
-        doRead(out, path[0], path[1], config, session);
-//        session.getStats().onSampleCreated(sample);
-//        Date now = sample.getTimestamp();
-//        Result result = new Result(now, OP_TYPE, sample.isSucc());
-//        session.getStats().onOperationCompleted(result);
+        doRead(OP_TYPE, out, path[0], path[1], config, session);
     }
 
-    private Sample doRead(OutputStream out, String conName, String objName,
+    private void doRead(final String opType, OutputStream out, String conName, String objName,
             Config config, Session session) {
         if (Thread.interrupted())
             throw new AbortedException();
@@ -79,30 +73,26 @@ public class Reader extends AbstractOperator {
         InputStream in = null;
         CountingOutputStream cout = new CountingOutputStream(out);
 
-        long start = System.currentTimeMillis();
+//        long start = System.currentTimeMillis();
 
         try {
-            in = session.getApi().getObject(conName, objName, config);
-            if (!hashCheck)
-                IOUtils.copyLarge(in, cout);
-            else if (!validateChecksum(conName, objName, session, in, cout))
-                return new Sample(new Date(), OP_TYPE, false);
+        	session.getApi().getObject(opType, conName, objName, config);            
+//            if (!hashCheck)
+//                IOUtils.copyLarge(in, cout);
+//            else if (!validateChecksum(conName, objName, session, in, cout))
+//                return new Sample(new Date(), opType, false);
         } catch (StorageInterruptedException sie) {
             throw new AbortedException();
         } catch (Exception e) {
         	System.out.println("Unknown exception: ");
         	e.printStackTrace();
             doLogErr(session.getLogger(), "fail to perform read operation", e);
-            return new Sample(new Date(), OP_TYPE, false);
+//            return new Sample(new Date(), OP_TYPE, false);
         } finally {
             IOUtils.closeQuietly(in);
             IOUtils.closeQuietly(cout);
         }
 
-        long end = System.currentTimeMillis();
-
-        Date now = new Date(end);
-        return new Sample(now, OP_TYPE, true, end - start, cout.getByteCount());
     }
 
     private static boolean validateChecksum(String conName, String objName,

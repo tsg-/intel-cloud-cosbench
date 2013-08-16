@@ -22,9 +22,11 @@ import static com.intel.cosbench.api.storage.StorageConstants.*;
 import java.io.*;
 import java.util.*;
 
+import org.apache.http.HttpResponse;
+
 import com.intel.cosbench.api.context.*;
 import com.intel.cosbench.api.ioengine.IOEngineAPI;
-import com.intel.cosbench.api.stats.StatsCollector;
+import com.intel.cosbench.api.stats.StatsListener;
 import com.intel.cosbench.api.validator.ResponseValidator;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.log.Logger;
@@ -40,11 +42,11 @@ public class NoneStorage implements StorageAPI {
 
     public static final String API_TYPE = "none";
 
-    protected Context parms;
+    protected volatile Context parms;
     protected Logger logger;
     
     protected IOEngineAPI ioengine;
-    protected StatsCollector collector;
+    protected StatsListener listener;
     protected ResponseValidator validator;
 
     /* configurations */
@@ -52,16 +54,6 @@ public class NoneStorage implements StorageAPI {
 
     public NoneStorage() {
         /* empty */
-    }
-    
-    @Override
-    public void initCollector(StatsCollector collector) {
-    	this.collector = collector;
-    }
-
-    @Override
-    public void initValidator(ResponseValidator validator) {
-    	this.validator = validator;
     }
     
     @Override
@@ -81,8 +73,9 @@ public class NoneStorage implements StorageAPI {
     }
 
     @Override
-    public void setAuthContext(Context info) {
+    public void setAuthContext(ExecContext info) {
         /* empty */
+    	parms.putAll(info);
     }
 
     @Override
@@ -101,55 +94,67 @@ public class NoneStorage implements StorageAPI {
     }
 
     @Override
-    public InputStream getObject(String container, String object, Config config) {
+    public void getObject(final String opType, String container, String object, Config config) throws StorageException, IOException {
         if (logging)
             logger.info("performing GET at /{}/{}", container, object);
-        return new ByteArrayInputStream(new byte[] {});
+//        return new ByteArrayInputStream(new byte[] {});
     }
 
     @Override
-    public void createContainer(String container, Config config) {
+    public void createContainer(final String opType, String container, Config config) throws StorageException, IOException {
         if (logging)
             logger.info("performing PUT at /{}", container);
     }
 
     @Deprecated
-    public void createObject(String container, String object, byte[] data,
-            Config config) {
+    public void createObject(final String opType, String container, String object, byte[] data,
+            Config config) throws StorageException, IOException {
         if (logging)
             logger.info("performing PUT at /{}/{}", container, object);
     }
 
     @Override
-    public void createObject(String container, String object, InputStream data,
-            long length, Config config) {
+    public void createObject(final String opType, String container, String object, InputStream data,
+            long length, Config config) throws StorageException, IOException {
         if (logging)
             logger.info("performing PUT at /{}/{}", container, object);
     }
 
     @Override
-    public void deleteContainer(String container, Config config) {
+    public void deleteContainer(final String opType, String container, Config config) throws IOException {
         if (logging)
             logger.info("performing DELETE at /{}", container);
     }
 
     @Override
-    public void deleteObject(String container, String object, Config config) {
+    public void deleteObject(final String opType, String container, String object, Config config) throws StorageException, IOException {
         if (logging)
             logger.info("performing DELETE at /{}/{}", container, object);
     }
 
-    protected void createMetadata(String container, String object,
+    @Override
+    public void createMetadata(final String opType, String container, String object,
             Map<String, String> map, Config config) {
         if (logging)
             logger.info("performing POST at /{}/{}", container, object);
     }
 
-    protected Map<String, String> getMetadata(String container, String object,
+    @Override
+    public Map<String, String> getMetadata(final String opType, String container, String object,
             Config config) {
         if (logging)
             logger.info("performing HEAD at /{}/{}", container, object);
         return Collections.emptyMap();
     }
+
+	@Override
+	public void setListener(StatsListener listener) {
+		this.listener = listener;		
+	}
+
+	@Override
+	public void setValidator(ResponseValidator validator) {
+		this.validator = validator;
+	}
 
 }

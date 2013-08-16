@@ -227,10 +227,10 @@ public class WorkloadConfigurationController extends AbstractController {
 //    	return val;
 //    }
     
-    private int getParmInt(HttpServletRequest req, String parm)
-    {
-    	return Integer.parseInt(getParm(req, parm));
-    }
+//    private int getParmInt(HttpServletRequest req, String parm)
+//    {
+//    	return Integer.parseInt(getParm(req, parm));
+//    }
     
     private int getParmInt(HttpServletRequest req, String parm, int defVal)
     {

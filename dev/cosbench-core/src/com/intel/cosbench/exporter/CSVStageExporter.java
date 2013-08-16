@@ -53,7 +53,7 @@ class CSVStageExporter extends AbstractStageExporter {
         for (int i = 0; i < 6; i++)
             // 6 metrics
             for (Metrics metrics : snapshots[0].getReport())
-                buffer.append(metrics.getSampleType()).append(',');
+                buffer.append(/*metrics.getSampleType()*/ metrics.getOpType()).append(',');
         buffer.append("Min-Version").append(',');
         buffer.append("Version").append(',');
         buffer.append("Max-Version").append('\n');

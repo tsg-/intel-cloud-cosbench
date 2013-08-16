@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.util.EntityUtils;
 
 import com.intel.cosbench.api.context.Context;
 
@@ -16,20 +17,24 @@ import com.intel.cosbench.api.context.Context;
  *
  */
 public class BaseResponseValidator extends ResponseValidator {
-	protected Context context;
+//	protected volatile Context context;
 	
 	public BaseResponseValidator() {
+//		this.context = new Context();
 	}
 	
+	@Override
  	public boolean validate(final HttpResponse response, Context context) throws Throwable {
-		this.context = context;
+//		this.context = context;
 		
  		if(response == null)
 			throw new Exception("No response");
 		
 		int statusCode = response.getStatusLine().getStatusCode();
-		if (statusCode == HttpStatus.SC_OK)
-			return true;
+		if (statusCode >= HttpStatus.SC_OK && statusCode < (HttpStatus.SC_OK + 100)) {
+	    	  EntityUtils.consume(response.getEntity());
+	    	  return true;
+		}
 	  
 		if (statusCode == HttpStatus.SC_NOT_FOUND)
 			throw new FileNotFoundException("The target is requesting cannot be found!");
@@ -37,9 +42,9 @@ public class BaseResponseValidator extends ResponseValidator {
 		return false;
 	}
 
-	@Override
-	public Context getResults() {
-		return context;
-	}
+//	@Override
+//	public Context getResults() {
+//		return context;
+//	}
     
 }

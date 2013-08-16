@@ -33,7 +33,7 @@ public class Metrics implements Item, Cloneable {
     /* Type */
 
     private String opType; /* operation type */
-    private String sampleType; /* sample type */
+//    private String sampleType; /* sample type */
 
     /* Status */
 
@@ -72,13 +72,13 @@ public class Metrics implements Item, Cloneable {
         this.opType = opType;
     }
 
-    public String getSampleType() {
-        return sampleType;
-    }
-
-    public void setSampleType(String sampleType) {
-        this.sampleType = sampleType;
-    }
+//    public String getSampleType() {
+//        return sampleType;
+//    }
+//
+//    public void setSampleType(String sampleType) {
+//        this.sampleType = sampleType;
+//    }
 
     public int getSampleCount() {
         return sampleCount;
@@ -153,16 +153,16 @@ public class Metrics implements Item, Cloneable {
         return this;
     }
 
-    public static String getMetricsType(String opType, String sampleType) {
-        return opType + "-" + sampleType;
-    }
+//    public static String getMetricsType(String opType, String sampleType) {
+//        return opType + "-" + sampleType;
+//    }
 
     public static Metrics newMetrics(String type) {
-        String[] types = type.split("-");
+//        String[] types = type.split("-");
         Metrics metrics = new Metrics();
         metrics.setName(type);
-        metrics.setOpType(types[0]);
-        metrics.setSampleType(types[1]);
+        metrics.setOpType(type);
+//        metrics.setSampleType(types[1]);
         return metrics;
     }
 
@@ -171,7 +171,7 @@ public class Metrics implements Item, Cloneable {
         int tsps = mark.getTotalSampleCount();
         long rtSum = mark.getRtSum();
         long bytes = mark.getByteCount();
-        String type = getMetricsType(mark.getOpType(), mark.getSampleType());
+        String type = mark.getOpType(); // getMetricsType(mark.getOpType(), mark.getSampleType());
         Metrics metrics = newMetrics(type);
         metrics.setSampleCount(sps);
         metrics.setTotalSampleCount(tsps);

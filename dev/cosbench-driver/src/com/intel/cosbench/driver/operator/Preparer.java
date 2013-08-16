@@ -24,7 +24,6 @@ import java.util.*;
 import org.apache.commons.lang.StringUtils;
 
 import com.intel.cosbench.api.storage.StorageInterruptedException;
-import com.intel.cosbench.bench.*;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.driver.agent.AgentException;
 import com.intel.cosbench.driver.random.RandomInputStream;
@@ -38,7 +37,7 @@ import com.intel.cosbench.service.AbortedException;
  * @author ywang19, qzheng7
  * 
  */
-class Preparer extends AbstractOperator {
+public class Preparer extends AbstractOperator {
 
     public static final String OP_TYPE = "prepare";
 
@@ -69,20 +68,20 @@ class Preparer extends AbstractOperator {
         return OP_TYPE;
     }
 
-    @Override
-    public String getSampleType() {
-        return Writer.OP_TYPE;
-    }
+//    @Override
+//    public String getSampleType() {
+//        return Writer.OP_TYPE;
+//    }
 
     @Override
     protected void operate(int idx, int all, Session session) {
         String[] path = null;
-        String opTye = getOpType();
+        String opType = getOpType();
         String lastContainer = null;
 
         while ((path = objScanner.nextObjPath(path, idx, all)) != null) {
             if (createContainer && !StringUtils.equals(lastContainer, path[0])) {
-                doInit(path[0], config, session);
+                doInit(opType, path[0], config, session);
                 lastContainer = path[0];
             }
             if (path[1] == null)
@@ -92,22 +91,21 @@ class Preparer extends AbstractOperator {
             long len = chunked ? -1 : size;
             RandomInputStream in = new RandomInputStream(size, random,
                     isRandom, hashCheck);
-            Sample sample = doWrite(in, len, path[0], path[1], config, session);
-            sample.setOpType(opTye);
-            session.getListener().onSampleCreated(sample);
+            doWrite(opType, in, len, path[0], path[1], config, session);
+//            session.getListener().onSampleCreated(sample);
         }
 
-        Date now = new Date();
-        Result result = new Result(now, opTye, getSampleType(), true);
-        session.getListener().onOperationCompleted(result);
+//        Date now = new Date();
+//        Result result = new Result(now, opType, getSampleType(), true);
+//        session.getListener().onOperationCompleted(result);
     }
 
-    public static void doInit(String conName, Config config, Session session) {
+    public void doInit(final String opType, String conName, Config config, Session session) {
         if (Thread.interrupted())
             throw new AbortedException();
 
         try {
-            session.getApi().createContainer(conName, config);
+            session.getApi().createContainer(opType, conName, config);
         } catch (StorageInterruptedException sie) {
             throw new AbortedException();
         } catch (Exception e) {

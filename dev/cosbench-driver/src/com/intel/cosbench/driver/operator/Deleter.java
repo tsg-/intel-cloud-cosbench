@@ -17,10 +17,7 @@ limitations under the License.
 
 package com.intel.cosbench.driver.operator;
 
-import java.util.Date;
-
 import com.intel.cosbench.api.storage.StorageInterruptedException;
-import com.intel.cosbench.bench.*;
 import com.intel.cosbench.config.Config;
 import com.intel.cosbench.driver.util.ObjectPicker;
 import com.intel.cosbench.service.AbortedException;
@@ -55,33 +52,32 @@ class Deleter extends AbstractOperator {
     @Override
     protected void operate(int idx, int all, Session session) {
         String[] path = objPicker.pickObjPath(session.getRandom(), idx, all);
-        Sample sample = doDelete(path[0], path[1], config, session);
-        session.getListener().onSampleCreated(sample);
-        Date now = sample.getTimestamp();
-        Result result = new Result(now, OP_TYPE, sample.isSucc());
-        session.getListener().onOperationCompleted(result);
+        doDelete(OP_TYPE, path[0], path[1], config, session);
+//        session.getListener().onSampleCreated(sample);
+//        Date now = sample.getTimestamp();
+//        Result result = new Result(now, OP_TYPE, sample.isSucc());
+//        session.getListener().onOperationCompleted(result);
     }
 
-    public static Sample doDelete(String conName, String objName,
+    public static void doDelete(final String opType, String conName, String objName,
             Config config, Session session) {
         if (Thread.interrupted())
             throw new AbortedException();
-
-        long start = System.currentTimeMillis();
+//        long start = System.currentTimeMillis();
 
         try {
-            session.getApi().deleteObject(conName, objName, config);
+            session.getApi().deleteObject(opType, conName, objName, config);
         } catch (StorageInterruptedException sie) {
             throw new AbortedException();
         } catch (Exception e) {
             doLogErr(session.getLogger(), "fail to perform remove operation", e);
-            return new Sample(new Date(), OP_TYPE, false);
+//            return new Sample(new Date(), OP_TYPE, false);
         }
-
-        long end = System.currentTimeMillis();
-
-        Date now = new Date(end);
-        return new Sample(now, OP_TYPE, true, end - start, 0L);
+//
+//        long end = System.currentTimeMillis();
+//
+//        Date now = new Date(end);
+//        return new Sample(now, OP_TYPE, true, end - start, 0L);
     }
 
 }

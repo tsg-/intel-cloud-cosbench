@@ -6,6 +6,7 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.message.BasicHttpRequest;
 
+import com.intel.cosbench.api.context.ExecContext;
 import com.intel.cosbench.api.nio.client.NIOClient;
 import com.intel.cosbench.log.LogFactory;
 import com.intel.cosbench.log.LogManager;
@@ -55,7 +56,8 @@ public class NIOEngineTester {
         	try {
         		BasicHttpRequest request = client.makeHttpGet(path);
 //	            System.out.println("[" + (i+1) + "]" + " Start Timestamp=" + System.currentTimeMillis());
-        		client.GET(target, request);
+        		ExecContext context = new ExecContext(target, request, null, "read", 0);
+        		client.GETorHEAD(target, request, context, false);
 //	            System.out.println("[" + (i+1) + "]" + " End Timestamp=" + System.currentTimeMillis());
         	}catch(Exception ie) {
         		ie.printStackTrace();
@@ -76,13 +78,52 @@ public class NIOEngineTester {
 	
 	public void testPUT()
 	{
-
         	NIOClient client = ioengine.newClient(); //new NIOClient(ioengine.getConnPool());
 
     		HttpHost target = new HttpHost("127.0.0.1", 8080, "http");
             String sub = "128KB";
         	
             Random rnd = new Random(23);
+            
+            int range = 10;
+            int total = 20;         
+            int size = 1024 * 1024 *2 ;
+
+            for(int i=0; i< total; i++)
+            {
+	            int idx = (rnd.nextInt(range)+1);
+	        	
+	        	String path = "/" + sub + "/" + idx + ".txt";
+	        	System.out.println("Path=" + path);	        	
+	        	
+	        	try
+	        	{ 
+	        		HttpEntityEnclosingRequest request = client.makeHttpPut(path);
+//	            System.out.println("[" + (i+1) + "]" + " Start Timestamp=" + System.currentTimeMillis());
+	        		ExecContext context = new ExecContext(target, request, null, "write", size);
+	        		client.PUT(target, request, context);
+//	            System.out.println("[" + (i+1) + "]" + " End Timestamp=" + System.currentTimeMillis());
+	        	}catch(Exception ie) {
+	        		ie.printStackTrace();
+	        	}    	
+            }
+            
+            try {
+            	client.await();
+            }catch(InterruptedException ex) {
+            	System.out.println("Latch is interrupted.");
+            }
+	}
+	
+	public void testDELETE()
+	{
+
+        	NIOClient client = ioengine.newClient(); //new NIOClient(ioengine.getConnPool());
+
+    		HttpHost target = new HttpHost("127.0.0.1", 8080, "http");
+            String sub = "128KB";
+        	
+            Random rnd = new Random(1023);
             
             int range = 10;
             int total = 20;            
@@ -97,49 +138,10 @@ public class NIOEngineTester {
 	        	
 	        	try
 	        	{
-	        		HttpEntityEnclosingRequest request = client.makeHttpPut(path);
-//	            System.out.println("[" + (i+1) + "]" + " Start Timestamp=" + System.currentTimeMillis());
-	        		client.PUT(target, request);
-//	            System.out.println("[" + (i+1) + "]" + " End Timestamp=" + System.currentTimeMillis());
-	        	}catch(Exception ie) {
-	        		ie.printStackTrace();
-	        	}    	
-            }
-            
-            try {
-            	client.await();
-            }catch(InterruptedException ex) {
-            	System.out.println("Latch is interrupted.");
-            }
-
-	}
-	
-	public void testDELETE()
-	{
-
-        	NIOClient client = ioengine.newClient(); //new NIOClient(ioengine.getConnPool());
-
-    		HttpHost target = new HttpHost("127.0.0.1", 8080, "http");
-            String sub = "128KB";
-        	
-            Random rnd = new Random(1023);
-            
-            int range = 10;
-            int total = 10;            
-
-            for(int i=0; i< total; i++)
-            {
-	            int idx = (rnd.nextInt(range)+1);
-	        	
-	        	String path = "/" + sub + "/" + idx + ".txt";
-	        	System.out.println("Path=" + path);
-	        	
-	        	
-	        	try
-	        	{
 	        		BasicHttpRequest request = client.makeHttpDelete(path);	            
-//	            System.out.println("[" + (i+1) + "]" + " Start Timestamp=" + System.currentTimeMillis());            
-	        		client.DELETE(target, request);	            
+//	            System.out.println("[" + (i+1) + "]" + " Start Timestamp=" + System.currentTimeMillis());       
+	        		ExecContext context = new ExecContext(target, request, null, "delete", 0);
+	        		client.DELETE(target, request, context);	            
 //	            System.out.println("[" + (i+1) + "]" + " End Timestamp=" + System.currentTimeMillis());
 	        	}catch(Exception ie) {
 	        		ie.printStackTrace();
@@ -164,13 +166,15 @@ public class NIOEngineTester {
     public static void main(String[] args)
     {
     	NIOEngineTester tester = new NIOEngineTester();
-    	tester.init();
+    	tester.init();   	
+
+    	
+//    	tester.testPUT();
+    	
+
+    	tester.testDELETE();
     	
 //    	tester.testGET();
-    	
-    	tester.testPUT();
-//    	
-//    	tester.testDELETE();
     	
     	tester.pause(1000);
     	

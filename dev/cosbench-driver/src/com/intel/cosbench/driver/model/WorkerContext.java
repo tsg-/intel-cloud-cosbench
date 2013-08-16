@@ -26,7 +26,7 @@ import com.intel.cosbench.api.ioengine.IOEngineAPI;
 import com.intel.cosbench.api.storage.StorageAPI;
 import com.intel.cosbench.bench.*;
 import com.intel.cosbench.config.Mission;
-import com.intel.cosbench.driver.operator.OperationListener;
+//import com.intel.cosbench.driver.operator.OperationListener;
 import com.intel.cosbench.driver.operator.Session;
 import com.intel.cosbench.log.Logger;
 import com.intel.cosbench.model.WorkerInfo;
@@ -48,26 +48,20 @@ public class WorkerContext implements WorkerInfo, Session {
 
     private volatile boolean error = false;
     private volatile boolean aborted = false;
-    /* Each worker starts with an empty snapshot */
-//    private transient volatile Snapshot snapshot = new Snapshot();
     /* Each worker starts with an empty report */
     private volatile Report report = new Report();
     /* Each worker has its private random object so as to enhance performance */
     private transient Random random = new Random(RandomUtils.nextLong());
-    /* Each worker has its private required version */
-//    private volatile int version = 0;
 
-//    private StatsCollector collector;
     private WorkStats stats;
     
     public WorkerContext() {
         /* empty */
     	stats = new WorkStats(this);
-
     }
     
     public void init() {
-        storageApi.initCollector(stats);
+        storageApi.setListener(stats);
         
         stats.initTimes();
         stats.initLimites();
@@ -88,19 +82,23 @@ public class WorkerContext implements WorkerInfo, Session {
         return stats;
     }
     
-    @Override
-    public OperationListener getListener() {
-    	return stats;
+//    @Override
+//    public OperationListener getListener() {
+//    	return stats;
+//    }
+    
+    public long getRuntime() {
+    	return stats.getRuntime();
     }
     
-    public long getTimeout() {
-    	return stats.getTimeout();
+    public boolean isRunning() {
+    	return stats.isRunning();
     }
     
-    public boolean isFinished() {
-    	return stats.isFinished();
+    public long updateStats() {
+    	return stats.updateStats();
     }
-    
+   
     public Mission getMission() {
         return mission;
     }
@@ -144,6 +142,10 @@ public class WorkerContext implements WorkerInfo, Session {
     public boolean isError() {
         return error;
     }
+    
+    public void waitForCompletion(long interval) {
+    	stats.waitForCompletion(interval);    	
+    }
 
     public void setError(boolean error) {
         this.error = error;
@@ -159,55 +161,8 @@ public class WorkerContext implements WorkerInfo, Session {
 
     @Override
     public Snapshot getSnapshot() {
-    	return stats.doSnapshot();
-		
-		/*
-    	if(snapshot.getVersion() < version)
-    	{
-    		logger.debug("Worker[{}] : blank snapshot is generated.", index);
-    		Snapshot blankSnapshot = new Snapshot();
-
-    		blankSnapshot.setVersion(version);
-    		blankSnapshot.setMinVersion(version);
-    		blankSnapshot.setMaxVersion(version);
-    		
-    		version++;
-    		runlen++;
-    		
-    		return blankSnapshot;
-    	}
-    
-    	// align snapshot metrics to compensate the under-counting due to blank snapshots.
-    	if(runlen > 0)
-    	{
-	    	Report report = snapshot.getReport();
-	    	Metrics[] metrics = report.getAllMetrics();
-	
-	    	for(int i=0; i<metrics.length; i++)
-	    	{
-	    		logger.debug("Worker[{}] : ratio={}", index, runlen+1);
-	    		metrics[i].setThroughput(metrics[i].getThroughput()*(runlen+1));
-	    		metrics[i].setBandwidth(metrics[i].getBandwidth()*(runlen+1));
-	    	}
-	    	
-	    	runlen = 0;
-    	}
-    	
-    	version++;
-    	
-    	return snapshot;
-    	*/
+    	return stats.doSnapshot();		
     }
-
-//    void setSnapshot(Snapshot snapshot) {
-//    	synchronized(this.snapshot) {
-//	    	this.snapshot = snapshot;
-//	
-//	    	this.snapshot.setVersion(++version);
-//	    	this.snapshot.setMinVersion(++version);
-//	    	this.snapshot.setMaxVersion(++version);
-//    	}
-//    }
 
     @Override
     public Report getReport() {
@@ -230,14 +185,8 @@ public class WorkerContext implements WorkerInfo, Session {
         storageApi.dispose();
         storageApi = null;
         random = null;
-//        snapshot = new Snapshot();
         logger = null;
     }
-
-//	public void setStatsCollector(StatsCollector collector) {
-//		this.collector = collector;
-//        this.storageApi.initCollector(this.collector);
-//	}
 
 	@Override
 	public int getTotalWorkers() {
