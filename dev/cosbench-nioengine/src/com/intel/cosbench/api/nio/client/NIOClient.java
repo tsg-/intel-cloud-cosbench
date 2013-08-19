@@ -119,10 +119,16 @@ public class NIOClient implements IOClient {
 		this(connPool, connPool.getMaxTotal());
 	}
 		
-	public void await() throws InterruptedException
+	public void await()
 	{
-		if(throttler != null)
-			throttler.await();
+		if(throttler != null) 
+		{
+			try{
+				throttler.await();
+			}catch(InterruptedException ie) {
+				throttler.dispose();
+			}
+		}
 	}
 	
 	public BasicHttpRequest makeHttpHead(String path)

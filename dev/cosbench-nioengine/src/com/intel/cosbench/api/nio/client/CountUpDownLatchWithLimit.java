@@ -33,6 +33,11 @@ public class CountUpDownLatchWithLimit {
         latch.await();
     }
     
+    public void dispose() {
+    	sem.release();
+    	latch.countDown();    	
+    }
+    
     private boolean isEmpty() {
     	return sem.availablePermits() >= limit;
     }

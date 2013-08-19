@@ -136,7 +136,7 @@ class SwiftNioStorage extends NoneStorage {
     @Override
     public void dispose() {
         super.dispose();
-//        client.dispose();
+        nioclient.await();
     }
 
     @Override
@@ -326,14 +326,13 @@ class SwiftNioStorage extends NoneStorage {
 
 	        // construct request.
 	    	URI uri = URI.create(parms.getStr(STORAGE_URL_KEY, STORAGE_URL_DEFAULT));        	
-	    	HttpEntityEnclosingRequest method = nioclient.makeHttpPut(uri.getPath() + "/" + container);
-	    	this.method = method;
+	    	method = (HttpEntityEnclosingRequest)nioclient.makeHttpPut(uri.getPath() + "/" + container);
 	    	method.setHeader(X_AUTH_TOKEN, parms.getStr(AUTH_TOKEN_KEY, AUTH_TOKEN_DEFAULT));              	
 	        // issue request.
 			HttpHost target = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
 			
     		ExecContext context = new ExecContext(target, method, null, opType, 0);
-			response = nioclient.PUT(target, method, context);
+			response = nioclient.PUT(target, (HttpEntityEnclosingRequest)method, context);
 			
         } catch (SocketTimeoutException ste) {
             throw new StorageTimeoutException(ste);

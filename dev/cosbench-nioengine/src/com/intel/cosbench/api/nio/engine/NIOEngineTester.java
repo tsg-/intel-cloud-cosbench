@@ -63,12 +63,8 @@ public class NIOEngineTester {
         		ie.printStackTrace();
         	}
         }
-        
-        try {
-        	client.await();
-        }catch(InterruptedException ex) {
-        	System.out.println("Latch is interrupted.");
-        }
+
+        client.await();
 	}
 	
 	public String makePath(String path)
@@ -108,11 +104,7 @@ public class NIOEngineTester {
 	        	}    	
             }
             
-            try {
-            	client.await();
-            }catch(InterruptedException ex) {
-            	System.out.println("Latch is interrupted.");
-            }
+           	client.await();
 	}
 	
 	public void testDELETE()
@@ -147,12 +139,9 @@ public class NIOEngineTester {
 	        		ie.printStackTrace();
 	        	}
             }
-            
-            try {
-            	client.await();
-            }catch(InterruptedException ex) {
-            	System.out.println("Latch is interrupted.");
-            }    	
+
+            client.await();
+
 	}
 	
 	public void pause(long ms) {

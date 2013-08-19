@@ -25,5 +25,10 @@ public class RequestThrottler {
 		if(latch != null)
 			latch.await();
 	}
+	
+	public void dispose() {
+		if(latch != null)
+			latch.dispose();
+	}
 
 }

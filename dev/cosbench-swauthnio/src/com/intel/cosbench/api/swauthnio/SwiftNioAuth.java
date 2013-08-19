@@ -93,6 +93,7 @@ class SwiftNioAuth extends NoneAuth {
     @Override
     public void dispose() {
         super.dispose();
+       	nioclient.await();
     }
 
     @Override

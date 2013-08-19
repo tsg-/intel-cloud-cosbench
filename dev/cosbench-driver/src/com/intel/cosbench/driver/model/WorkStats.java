@@ -142,6 +142,7 @@ public class WorkStats extends StatsListener /* implements OperationListener */{
 	        long window = lrsample - frsample;
 	        Report report = new Report();
 	        workerContext.getLogger().debug("Mark Count = " + globalMarks.getAllMarks().length);
+	        System.out.println("Mark Count = " + globalMarks.getAllMarks().length + ", Type = " + globalMarks.getAllMarks()[0].getOpType());
 	        for (Mark mark : globalMarks) {
 	            report.addMetrics(Metrics.convert(mark, window));
 	        }
