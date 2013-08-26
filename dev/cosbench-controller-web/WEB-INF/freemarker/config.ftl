@@ -55,6 +55,14 @@
 						</thead>
 						
 						<tbody>
+								<tr>
+									<td >IO Engine</td>
+									<td >
+										<select name="ioengine.type">
+										  <option value="nio" selected="true">non-blocking I/O</option>
+										</select>
+									</td>
+							</tr>
 							<tr>
 								<td >Authentication</td>
 								<td >

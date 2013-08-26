@@ -27,7 +27,7 @@ public class SwiftResponseValidator extends BaseResponseValidator {
 		}
         
 		if (statusCode == HttpStatus.SC_NOT_FOUND) 
-			throw new SwiftFileNotFoundException(context.request.getRequestLine().getUri() + " can not be found.", response.getAllHeaders(), response.getStatusLine());
+			throw new SwiftFileNotFoundException(context.getUri() + " can not be found.", response.getAllHeaders(), response.getStatusLine());
 		
 		throw new SwiftException("unexpected result from server: " + response.getStatusLine(),
 	          response.getAllHeaders(), response.getStatusLine());

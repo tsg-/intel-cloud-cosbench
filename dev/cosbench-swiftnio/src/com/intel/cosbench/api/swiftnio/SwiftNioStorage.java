@@ -84,34 +84,18 @@ class SwiftNioStorage extends NoneStorage {
 
     }
     
-//    @Override
-    public void setListener(StatsListener collector) {
-    	this.listener = collector;
+    @Override
+    public void setListener(StatsListener listener) {
+    	super.setListener(listener);
+    	
 		if(nioclient != null)
-			nioclient.setListener(collector);
+			nioclient.setListener(listener);
     }
-//
-//    @Override
-//    public void initValidator(ResponseValidator validator) {
-//    	this.validator = validator;
-//		if(nioclient != null)
-//			nioclient.setValidator(validator);
-//    }
-    
-//	public void setValidator(ResponseValidator validator) {
-//		if(nioclient != null)
-//			nioclient.setValidator(validator);
-//	}
 
-//	public void setCollector(StatsListener collector) {
-//		if(nioclient != null)
-//			nioclient.setCollector(collector);
-//	}
-
-	@Override
-    public void setAuthContext(ExecContext info) {
-        super.setAuthContext(info);
-        logger.debug("using storage config: {}", parms);
+//	@Override
+//    public void setAuthContext(ExecContext info) {
+//        super.setAuthContext(info);
+//        logger.debug("using storage config: {}", parms);
         
 //		int statusCode = response.getStatusLine().getStatusCode();
 //		
@@ -131,7 +115,7 @@ class SwiftNioStorage extends NoneStorage {
 //			return true;
 //        }
 
-    }
+//    }
 
     @Override
     public void dispose() {
@@ -303,7 +287,7 @@ class SwiftNioStorage extends NoneStorage {
     		response = nioclient.GETorHEAD(target, method, context, true);
 //    		validator.validate(response, context);
     		
-    		return context.status;
+    		return context.getStatus();
     		
 		} catch(Exception e) {
 			return false;
@@ -321,8 +305,8 @@ class SwiftNioStorage extends NoneStorage {
     	
         try {
 	        // construct request.
-//	        if (containerExists(opType, container))
-//	        	return;
+	        if (containerExists(opType, container))
+	        	return;
 
 	        // construct request.
 	    	URI uri = URI.create(parms.getStr(STORAGE_URL_KEY, STORAGE_URL_DEFAULT));        	
@@ -384,15 +368,14 @@ class SwiftNioStorage extends NoneStorage {
         try {
         	// construct request.
         	URI uri = URI.create(parms.getStr(STORAGE_URL_KEY, STORAGE_URL_DEFAULT));   
-        	HttpEntityEnclosingRequest method = nioclient.makeHttpPut(uri.getPath() + "/" + container + "/" + object);
-        	this.method = method;
+        	this.method = nioclient.makeHttpPut(uri.getPath() + "/" + container + "/" + object);
             method.setHeader(X_AUTH_TOKEN, parms.getStr(AUTH_TOKEN_KEY, AUTH_TOKEN_DEFAULT));
             
             // issue request.
     		HttpHost target = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
     		
     		ExecContext context = new ExecContext(target, method, null, opType, length);
-            response = nioclient.PUT(target, method, context);
+            response = nioclient.PUT(target, (HttpEntityEnclosingRequest)method, context);
             
         } catch (SocketTimeoutException ste) {
             throw new StorageTimeoutException(ste);

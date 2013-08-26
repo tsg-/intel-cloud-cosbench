@@ -237,8 +237,8 @@ public class NIOClient implements IOClient {
          // for buffer based producer:
  		final Random random = new Random(System.currentTimeMillis());
         final ContentType contentType = ContentType.TEXT_PLAIN;
-        LOGGER.info("Uploading Object with size={}", context.length);
- 		ZCProducer<ByteBuffer> producer = new ZCProducer<ByteBuffer>(context.length > 0? new ProducerBufferSource(random, context.length) : null);
+        LOGGER.info("Uploading Object with size={}", context.getLength());
+ 		ZCProducer<ByteBuffer> producer = new ZCProducer<ByteBuffer>(context.getLength() > 0? new ProducerBufferSource(random, context.getLength()) : null);
  		request.setEntity(producer.getEntity());
     	
  		// initialize future callback.

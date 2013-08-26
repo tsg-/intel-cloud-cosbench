@@ -106,7 +106,7 @@
           <tr>
             <td>${hInfo.id}-${sInfo.id}-${mid}</td>
             <#assign mid = mid + 1 >
-            <td>${mInfo.opType}<#if mInfo.opType != mInfo.sampleType>-${mInfo.sampleType}</#if></td>
+            <td>${mInfo.opType}</td>
             <#if allMetrics!false || oc!false >
             <td>
               <#assign op = mInfo.sampleCount >

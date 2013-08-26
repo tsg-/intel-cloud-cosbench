@@ -1,6 +1,7 @@
-  COSBench 0.3.2.0 (13-ww32.2)
+  COSBench 0.3.2.0 (13-ww34.1)
 ------------------------------------
-
+1. support async http request in execution engine
+2. support swift/swauth nio mode
 
   COSBench 0.3.1.1 (13-ww29.2)
 ------------------------------------

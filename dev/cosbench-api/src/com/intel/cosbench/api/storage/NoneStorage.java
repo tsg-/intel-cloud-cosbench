@@ -76,6 +76,7 @@ public class NoneStorage implements StorageAPI {
     public void setAuthContext(ExecContext info) {
         /* empty */
     	parms.putAll(info);
+        logger.debug("using storage config: {}", parms);
     }
 
     @Override

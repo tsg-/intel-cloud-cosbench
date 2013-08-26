@@ -78,17 +78,17 @@ public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 			LOGGER.debug("COMPLETED: ThreadID mismatch with request thread = {} vs response thread = {}.", context.threadId, Thread.currentThread().getId());
 		}
 		
-		context.response = response;
+		context.setResponse(response);
 
 		try {
 			if(validator != null)
-				context.status = validator.validate(response, context);
+				context.setStatus(validator.validate(response, context));
     	}catch(Throwable e) {
     		LOGGER.error("Response can't pass validation with exception: " + e.getMessage());
     		e.printStackTrace();
     	}finally {
-    		collector.onStats(context, context.status);    	
-            LOGGER.info("COMPLETED: {} --> {}, with " + countDown() + " outstanding requests.", context.getUri(), response.getStatusLine()); 
+    		collector.onStats(context, context.getStatus());    	
+            LOGGER.info("COMPLETED: " + context.getUri() + " --> " + response.getStatusLine() + ", length= " + context.getLength() + ", outstanding requests =  " + countDown()); 
     	}
     	
     }
@@ -100,7 +100,8 @@ public class COSBFutureCallback implements FutureCallback<HttpResponse> {
 		}
 		
         ex.printStackTrace();
-   		collector.onStats(context, false);  
+   		
+        collector.onStats(context, false);  
 
         LOGGER.info("FAILED: {} --> {}, with " + countDown() + " outstanding requests.", context.getUri(), ex.getMessage()); 
     }

@@ -11,7 +11,7 @@
   </tr>
   <#list allMetrics as mInfo>
     <tr>
-      <td>${mInfo.opType}<#if mInfo.opType != mInfo.sampleType>-${mInfo.sampleType}</#if></td>
+      <td>${mInfo.opType}</td>
       <td>
         <#assign op = mInfo.sampleCount >
         <#if (op >= 1000) >
@@ -112,7 +112,7 @@
   </tr>
   <#list allMetrics as mInfo>
     <tr>
-      <td>${mInfo.opType}<#if mInfo.opType != mInfo.sampleType>-${mInfo.sampleType}</#if></td>
+      <td>${mInfo.opType}</td>
       <td>
         <#if !mInfo.latency._60?? >
           N/A

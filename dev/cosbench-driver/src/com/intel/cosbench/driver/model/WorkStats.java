@@ -17,8 +17,6 @@ import com.intel.cosbench.bench.Sample;
 import com.intel.cosbench.bench.Snapshot;
 import com.intel.cosbench.bench.Status;
 import com.intel.cosbench.config.Mission;
-import com.intel.cosbench.log.LogFactory;
-import com.intel.cosbench.log.Logger;
 //import com.intel.cosbench.bench.Result;
 //import com.intel.cosbench.driver.operator.OperationListener;
 
@@ -142,7 +140,7 @@ public class WorkStats extends StatsListener /* implements OperationListener */{
 	        long window = lrsample - frsample;
 	        Report report = new Report();
 	        workerContext.getLogger().debug("Mark Count = " + globalMarks.getAllMarks().length);
-	        System.out.println("Mark Count = " + globalMarks.getAllMarks().length + ", Type = " + globalMarks.getAllMarks()[0].getOpType());
+//	        System.out.println("Mark Count = " + globalMarks.getAllMarks().length + ", Type = " + globalMarks.getAllMarks()[0].getOpType());
 	        for (Mark mark : globalMarks) {
 	            report.addMetrics(Metrics.convert(mark, window));
 	        }

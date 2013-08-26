@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.http.client.HttpClient;
 
 import com.intel.cosbench.api.context.Context;
+import com.intel.cosbench.api.context.ExecContext;
 import com.intel.cosbench.api.storage.*;
 import com.intel.cosbench.client.amplistor.*;
 import com.intel.cosbench.client.http.HttpClientUtil;
@@ -77,11 +78,6 @@ public class AmpliStorage extends NoneStorage {
     }
 
     @Override
-    public void setAuthContext(Context info) {
-        super.setAuthContext(info);
-    }
-
-    @Override
     public void dispose() {
         super.dispose();
         client.dispose();
@@ -94,8 +90,8 @@ public class AmpliStorage extends NoneStorage {
     }
     
     @Override
-    public InputStream getObject(String container, String object, Config config) {
-        super.getObject(container, object, config);
+    public void getObject(final String opType, String container, String object, Config config) throws StorageException, IOException {
+        super.getObject(opType, container, object, config);
         InputStream stream;
         try {
             stream = client.getObjectAsStream(container, object);
@@ -108,12 +104,11 @@ public class AmpliStorage extends NoneStorage {
         } catch (Exception e) {
             throw new StorageException(e);
         }
-        return stream;
     }
 
     @Override
-    public void createContainer(String container, Config config) {
-        super.createContainer(container, config);
+    public void createContainer(final String opType, String container, Config config) throws StorageException, IOException {
+        super.createContainer(opType, container, config);
         try {
             client.createNamespace(container, policy_id);
         } catch (SocketTimeoutException te) {
