@@ -62,7 +62,13 @@
 										  <option value="nio" selected="true">non-blocking I/O</option>
 										</select>
 									</td>
+									<td >
+									<input name="ioengine.config" type="text" style="width:500px" value="channels=8;concurrency=4"
+					title="different ioengine system has different parameters: &#10;[nio]: channels=<channel count>;concurrency=<concurrency> " /> 
+									 /> 
+								</td>
 							</tr>
+							
 							<tr>
 								<td >Authentication</td>
 								<td >
