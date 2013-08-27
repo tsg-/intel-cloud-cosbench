@@ -53,7 +53,7 @@ public class WorkAgent extends AbstractAgent {
     }
 
     private void doWork() {
-    	workerContext.getSnapshot();
+//    	workerContext.getSnapshot();
     	
         while (workerContext.isRunning())
             try {

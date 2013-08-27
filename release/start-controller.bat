@@ -13,4 +13,4 @@
 :: See the License for the specific language governing permissions and
 :: limitations under the License.
 ::
-java -Dcosbench.tomcat.config=conf/controller-tomcat-server.xml -server -cp main/* org.eclipse.equinox.launcher.Main -configuration conf/.controller -console 19089
+java -Dcosbench.tomcat.config=conf/controller-tomcat-server.xml -server -cp main/* org.eclipse.equinox.launcher.Main -configuration conf/.controller -console 17089

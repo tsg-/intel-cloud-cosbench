@@ -149,6 +149,7 @@ public class NIOEngine extends NoneIOEngine {
     public boolean shutdown() throws IOEngineException {
     	
     	try {    		
+    		connPool.shutdown(100);
     		ioReactor.shutdown();
     	}catch(IOException e) {
     		logger.error("Failed to shut down I/O Reactor.");

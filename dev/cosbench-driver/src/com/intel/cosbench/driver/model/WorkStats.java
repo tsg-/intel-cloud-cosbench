@@ -88,7 +88,8 @@ public class WorkStats extends StatsListener /* implements OperationListener */{
         
         trySummary(); // make a summary report if necessary
     }
-    
+
+/*
     public synchronized void onSampleCreatedNEW(Sample sample) {
     	curr = sample.getTimestamp().getTime();
         String type = sample.getOpType(); //getMarkType(sample.getOpType(), sample.getSampleType());
@@ -105,6 +106,7 @@ public class WorkStats extends StatsListener /* implements OperationListener */{
         
         trySummary(); // make a summary report if necessary
     }
+*/
     
     long getRuntime() {
     	return runtime;

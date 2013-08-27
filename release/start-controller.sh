@@ -24,6 +24,6 @@ VERSION=`cat VERSION`
 
 OSGI_BUNDLES="cosbench-log_${VERSION} cosbench-tomcat_${VERSION} cosbench-config_${VERSION} cosbench-core_${VERSION} cosbench-core-web_${VERSION} cosbench-controller_${VERSION} cosbench-controller-web_${VERSION}"
 
-OSGI_CONSOLE_PORT=19089
+OSGI_CONSOLE_PORT=17089
 
 sh cosbench-start.sh $SERVICE_NAME "$OSGI_BUNDLES" $OSGI_CONSOLE_PORT
